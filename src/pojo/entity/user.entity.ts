@@ -1,3 +1,4 @@
+import { IsNotEmpty, IsString } from 'class-validator';
 import {
   BaseEntity,
   Column,
@@ -19,8 +20,12 @@ export class UserEntity extends BaseEntity {
   id: number;
 
   @Column('varchar', { length: 20 })
+  @IsNotEmpty({ message: '数据不为空' })
+  @IsString({ message: '参数username要求是字符串!' })
   username: string;
 
+  @IsNotEmpty({ message: '数据不为空' })
+  @IsString({ message: '参数password要求是字符串!' })
   @Column('varchar', { length: 20 })
   password: string;
 

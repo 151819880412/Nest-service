@@ -1,6 +1,5 @@
-import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { CommonModule } from './common/common.module';
-import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { LoginModule } from './module/login.module';
 import { StatusMonitorModule } from 'nest-status-monitor';
 import statusMonitorConfig from './config/statusMonitor';
@@ -9,7 +8,6 @@ import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/auth.guard';
 import { ConfigModule } from '@nestjs/config';
 import appConfig from './config/app.config';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { database } from './config/database';
 import { CoreModule } from './config/core';
 import { UserModule } from './module/user.modules';

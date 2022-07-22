@@ -2,29 +2,40 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { WarpResponseInterceptor } from './common/interceptors/warp-response.interceptor';
 import { RolesGuard } from './common/guards/roles.guard';
 // import './utils/time';
 import 'reflect-metadata';
+import { ValidationPipes } from './pipes/validationPipes.pipe';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  // 全局注册参数过滤器
-  app.useGlobalPipes(
-    new ValidationPipe({
-      // 设置白名单
-      whitelist: true,
-      // 任何非白名单属性都会报错
-      forbidNonWhitelisted: true,
-      //  将传入的数据格式转换为我们定义的类型(比如get请求占位符id是number但是经过网络传输会自动转为string)
-      transform: true,
-      transformOptions: {
-        // 隐式类型转换   会将 requestBody 中的 string 隐式转换为 number
-        // enableImplicitConversion: true,
-      },
-    }),
-  );
+  // 全局注册 管道 -- 参数过滤器
+  // app.useGlobalPipes(
+  //   new ValidationPipe({
+  //     // 设置白名单
+  //     whitelist: true,
+  //     // 任何非白名单属性都会报错
+  //     forbidNonWhitelisted: true,
+  //     exceptionFactory: (errors) => {
+  //       const propertyNotExist = [];
+  //       for (let i = 0; i < errors.length; i++) {
+  //         const errorMessage = '属性' + errors[i].property + '未定义';
+  //         propertyNotExist.push(errorMessage);
+  //       }
+  //       return new BadRequestException(propertyNotExist);
+  //     },
+  //     //  将传入的数据格式转换为我们定义的类型(比如get请求占位符id是number但是经过网络传输会自动转为string)
+  //     transform: true,
+  //     transformOptions: {
+  //       // 隐式类型转换   会将 requestBody 中的 string 隐式转换为 number
+  //       // enableImplicitConversion: true,
+  //     },
+  //   }),
+  // );
+  // 全局注册 管道 -- 参数过滤器
+  app.useGlobalPipes(new ValidationPipes());
   // 全局注册响应拦截器
   app.useGlobalInterceptors(new WarpResponseInterceptor());
   // 全局注册错误的过滤器

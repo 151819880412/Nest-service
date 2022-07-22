@@ -4,7 +4,6 @@ import {
   Get,
   Post,
   Query,
-  ValidationPipe,
   HttpException,
   HttpStatus,
   UseFilters,
@@ -34,7 +33,7 @@ export class LoginController {
   constructor(private readonly loginServiceimpl: loginServiceImpl) {}
 
   @Post()
-  login(@Body(ValidationPipe) loginDto: LoginDto) {
+  login(@Body() loginDto: LoginDto) {
     return this.loginServiceimpl.login(loginDto);
   }
 
