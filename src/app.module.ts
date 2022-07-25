@@ -3,15 +3,14 @@ import { CommonModule } from './common/common.module';
 import { LoginModule } from './module/login.module';
 import { StatusMonitorModule } from 'nest-status-monitor';
 import statusMonitorConfig from './config/statusMonitor';
-import { AuthModule } from './module/auth.modules';
+import { AuthModule } from './module/auth.module';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/auth.guard';
 import { ConfigModule } from '@nestjs/config';
 import appConfig from './config/app.config';
 import { database } from './config/database';
 import { CoreModule } from './config/core';
-import { UserModule } from './module/user.modules';
-import { Exception } from './common/filters/Exception.filter';
+import { UserModule } from './module/user.module';
 
 @Module({
   imports: [
@@ -34,10 +33,6 @@ import { Exception } from './common/filters/Exception.filter';
   ],
   controllers: [],
   providers: [
-    {
-      provide: APP_FILTER,
-      useClass: Exception,
-    },
     // token验证
     {
       provide: APP_GUARD,

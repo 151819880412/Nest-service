@@ -1,17 +1,15 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoginController } from 'src/controller/login.controller';
-import { LoginEntity } from 'src/pojo/entity/login.entity';
-import { loginServiceImpl } from 'src/service/impl/login.service.impl';
-// import { loginService } from 'src/service/login.service';
+import { UserController } from 'src/controller/user.controller';
+import { UserEntity } from 'src/pojo/entity/user.entity';
+import { LoginService } from 'src/service/login.service';
+import { UserService } from 'src/service/user.service';
+import { AuthModule } from './auth.module';
 
-// 初始
 @Module({
-  imports: [
-    // 将实体同步到数据库
-    TypeOrmModule.forFeature([LoginEntity]),
-  ],
+  imports: [TypeOrmModule.forFeature([UserEntity]), AuthModule],
   controllers: [LoginController],
-  providers: [loginServiceImpl],
+  providers: [LoginService],
 })
 export class LoginModule {}

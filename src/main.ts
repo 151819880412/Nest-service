@@ -4,10 +4,10 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { WarpResponseInterceptor } from './common/interceptors/warp-response.interceptor';
-import { RolesGuard } from './common/guards/roles.guard';
 // import './utils/time';
 import 'reflect-metadata';
 import { ValidationPipes } from './pipes/validationPipes.pipe';
+import { JwtAuthGuard } from './common/guards/auth.guard';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -41,6 +41,7 @@ async function bootstrap() {
   // 全局注册错误的过滤器
   app.useGlobalFilters(new HttpExceptionFilter());
   // 全局守卫
+  // app.useGlobalGuards(new JwtAuthGuard());
   // app.useGlobalGuards(new RolesGuard());
 
   // swagger

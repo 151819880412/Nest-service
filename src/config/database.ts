@@ -28,3 +28,10 @@ export const database: () => TypeOrmModuleOptions = () => ({
   // 实体每次运行程序时都会和数据库同步。生产中需要关闭
   synchronize: process.env.NODE_ENV !== 'production',
 });
+
+export const redisConfig = {
+  port: 6379,
+  host: '127.0.0.1',
+  db: 0,
+  password: 'root',
+};

@@ -7,9 +7,12 @@ import {
   Body,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/common/decorators/public.decorator';
 import { AuthServiceImpl } from '../service/impl/auth.service.impl';
 
+@ApiBearerAuth()
+@ApiTags('权限')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthServiceImpl) {}
@@ -18,13 +21,12 @@ export class AuthController {
   @Public()
   @Post('/login')
   async login(@Request() req) {
-    console.log(req.user);
-    return this.authService.login(req.body);
+    return this.authService.getToken(req.body);
   }
 
   //1.先执行jwt策略的 validate 方法
   @UseGuards(AuthGuard('jwt'))
-  @Get('me')
+  @Post('me')
   async getDoctorList(@Request() req) {
     // 3.验证通过，会将用户信息挂载到请求头中。
     return req.user;

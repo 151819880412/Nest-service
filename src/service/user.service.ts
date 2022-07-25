@@ -20,7 +20,6 @@ import { R } from 'src/response/R';
 //   }
 
 //   async register(user: UserDto) {
-//     console.log(user);
 //     // return await this.userRepository.query('select * from user');
 //   }
 // }

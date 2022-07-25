@@ -1,8 +1,11 @@
 import { Body, Controller, Post } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/common/decorators/public.decorator';
 import { UserDto } from 'src/pojo/dto/user.dto';
 import { UserService } from 'src/service/user.service';
 
+@ApiBearerAuth()
+@ApiTags('用户')
 @Controller('user')
 export class UserController {
   [x: string]: any;
@@ -10,7 +13,7 @@ export class UserController {
 
   @Public()
   @Post('register')
-  async register(@Body() user: UserDto) {
+  register(@Body() user: UserDto) {
     return this.userService.register(user);
   }
 

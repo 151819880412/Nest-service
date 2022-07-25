@@ -4,11 +4,11 @@ import {
   NestModule,
   RequestMethod,
 } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config/dist';
 import { LoggerMiddleware } from './middleware/logger.middleware';
 
 @Module({
-  imports: [],
-  providers: [],
+  imports: [ConfigModule],
 })
 /**
  * 局部中间件

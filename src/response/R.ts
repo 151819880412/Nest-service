@@ -16,10 +16,16 @@ export class Res implements ResponseInterFace {
     this.code = 20000;
     return this;
   }
-  err(message: string, data: any = {}) {
+  err(message: string, code = 20001, data: any = {}) {
     this.message = message;
     this.data = data;
-    this.code = 20001;
+    this.code = code;
+    return this;
+  }
+  getStatus() {
+    return 200;
+  }
+  getResponse() {
     return this;
   }
 }
