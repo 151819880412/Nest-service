@@ -58,9 +58,10 @@ export class BaseService<T> {
     newValue: QueryDeepPartialEntity<T>,
   ): Promise<number> {
     let updateResult = 1;
-    await this.repository
-      .update(conditions, newValue)
-      .catch((e) => (updateResult = 0));
+    await this.repository.update(conditions, newValue).catch((e) => {
+      console.log(e);
+      updateResult = 0;
+    });
     return updateResult;
   }
 }

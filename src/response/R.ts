@@ -2,24 +2,27 @@ interface ResponseInterFace {
   code: number;
   message: string;
   data: any;
+  type: 'success' | 'error';
 }
 
 export class Res implements ResponseInterFace {
   code: number;
   message: string;
   data: any;
-  type = 'success';
+  type: 'success' | 'error';
 
   ok(message: string, data: any = {}) {
     this.message = message;
     this.data = data;
     this.code = 20000;
+    this.type = 'success';
     return this;
   }
   err(message: string, code = 20001, data: any = {}) {
     this.message = message;
     this.data = data;
     this.code = code;
+    this.type = 'error';
     return this;
   }
   getStatus() {

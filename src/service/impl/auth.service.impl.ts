@@ -6,7 +6,7 @@ import { UserDto } from 'src/pojo/dto/user.dto';
 import { UserEntity } from 'src/pojo/entity/user.entity';
 import { AuthService } from '../auth.service';
 
-type TokenType = {
+export type TokenType = {
   accessToken: string;
   refreshToken: string;
 };

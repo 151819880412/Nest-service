@@ -1,14 +1,13 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Param, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/common/decorators/public.decorator';
-import { UserDto } from 'src/pojo/dto/user.dto';
+import { UserDto, UserPageDto } from 'src/pojo/dto/user.dto';
 import { UserService } from 'src/service/user.service';
 
 @ApiBearerAuth()
 @ApiTags('用户')
 @Controller('user')
 export class UserController {
-  [x: string]: any;
   constructor(private readonly userService: UserService) {}
 
   @Public()
@@ -17,15 +16,17 @@ export class UserController {
     return this.userService.register(user);
   }
 
-  //定义一个路由
-  // @Get('/')
-  // async getUser(): Promise<UserDto> {
-  //   const user = await this.userRepository.save({
-  //     name: 'user1',
-  //     password: 'pass1',
-  //   });
-  //   return await this.userService.findOne({
-  //     where: { username: '1' },
-  //   });
-  // }
+  @Post('relation')
+  relation(@Body() roleId: string) {
+    return this.userService.relation(roleId);
+  }
+
+  @Post('page/:currentPage/:pageSize')
+  page(
+    @Body() userPageDto: UserPageDto,
+    @Param('currentPage') currentPage: number,
+    @Param('pageSize') pageSize: number,
+  ) {
+    return this.userService.page(currentPage, pageSize, userPageDto);
+  }
 }

@@ -18,21 +18,26 @@ export class HttpExceptionFilter implements ExceptionFilter {
     //   exception instanceof HttpException
     //     ? exception.getStatus()
     //     : HttpStatus.INTERNAL_SERVER_ERROR;
-    const status = exception.getStatus();
-
+    console.log(exception);
     const badMessage = exception.message;
-
-    const exceptionResponse: any = exception.getResponse();
-    let validatorMessage = exceptionResponse;
-    if (typeof validatorMessage === 'object') {
-      validatorMessage = exceptionResponse.message;
+    let validatorMessage;
+    let status = 200;
+    if (exception.getStatus) {
+      status = exception.getStatus() || 200;
+    }
+    if (exception.getResponse) {
+      const exceptionResponse: any = exception.getResponse();
+      validatorMessage = exceptionResponse;
+      if (typeof validatorMessage === 'object') {
+        validatorMessage = exceptionResponse.message;
+      }
     }
 
     if (badMessage == 'Unauthorized') {
       response.status(200).json(R.err('请重新登录', 30001));
     } else {
       response.status(status).json({
-        code: status,
+        code: 50000,
         timestamp: Formt('yyyy-MM-dd HH:mm:ss'),
         path: request.url,
         message: validatorMessage || badMessage,

@@ -32,6 +32,7 @@ export class WarpResponseInterceptor<T extends ResponseInterFace<T>>
     }
     return next.handle().pipe(
       map((data) => {
+        console.log(data);
         // return { data, code: 20000, message: '请求成功' };
         if (data.constructor == Res) {
           return data;

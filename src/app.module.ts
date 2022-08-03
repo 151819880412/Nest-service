@@ -11,6 +11,8 @@ import appConfig from './config/app.config';
 import { database } from './config/database';
 import { CoreModule } from './config/core';
 import { UserModule } from './module/user.module';
+import { PermissionModel } from './module/permission.model';
+import { RoleModule } from './module/role.module';
 
 @Module({
   imports: [
@@ -18,6 +20,10 @@ import { UserModule } from './module/user.module';
     LoginModule,
     // 用户
     UserModule,
+    // 角色
+    RoleModule,
+    // 权限
+    PermissionModel,
     // 中间件
     CommonModule,
     // 异常监控

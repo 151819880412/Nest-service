@@ -12,3 +12,7 @@ export class UserDto {
   @IsString()
   readonly password: string;
 }
+
+export class UserPageDto {
+  readonly username: string;
+}

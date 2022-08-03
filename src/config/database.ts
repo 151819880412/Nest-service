@@ -1,4 +1,5 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { MyNamingStrategy } from './myNamingStrategy';
 
 export const database: () => TypeOrmModuleOptions = () => ({
   // ...
@@ -27,6 +28,8 @@ export const database: () => TypeOrmModuleOptions = () => ({
   autoLoadEntities: true,
   // 实体每次运行程序时都会和数据库同步。生产中需要关闭
   synchronize: process.env.NODE_ENV !== 'production',
+  // 驼峰转下划线
+  namingStrategy: new MyNamingStrategy(),
 });
 
 export const redisConfig = {
