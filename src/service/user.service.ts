@@ -2,10 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserDto, UserPageDto } from 'src/pojo/dto/user.dto';
 import { UserEntity } from 'src/pojo/entity/user.entity';
-import { Connection, DataSource, Repository } from 'typeorm';
-import { BaseService } from './BaseService';
-import { R } from 'src/response/R';
+import { Connection, DataSource, ILike, Repository } from 'typeorm';
+import { BaseQueryBuilderService } from './BaseQueryBuilder.service';
+import { R, Res } from 'src/response/R';
 import { RoleEntity } from 'src/pojo/entity/role.entity';
+import { plainToInstance } from 'class-transformer';
+import { fuzzyquery } from 'src/utils/Fuzzyquery';
 
 @Injectable()
 // export class UserService {
@@ -24,28 +26,36 @@ import { RoleEntity } from 'src/pojo/entity/role.entity';
 //     // return await this.userRepository.query('select * from user');
 //   }
 // }
-export class UserService extends BaseService<UserDto> {
+export class UserService extends BaseQueryBuilderService<UserEntity> {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
-    private readonly dataSource: DataSource,
+    dataSource: DataSource,
   ) {
-    super(userRepository);
+    super(dataSource, 'user', UserEntity);
   }
+  // constructor(
+  //   @InjectRepository(UserEntity)
+  //   private readonly userRepository: Repository<UserEntity>,
+  //   @InjectRepository(DataSource)
+  //   dataSources: DataSource,
+  //   dataSourceStr: 'user',
+  // ) {
+  //   super(dataSources, dataSourceStr, UserEntity);
+  // }
   async register(user: UserDto) {
-    const userOne = await this.findOne({
-      where: { username: user.username },
-    });
-    if (!userOne) {
-      return await this.saveOne(user);
-    } else {
-      return R.err('用户已存在');
-    }
+    // const userOne = await this.findOne({
+    //   where: { username: user.username },
+    // });
+    // if (!userOne) {
+    //   const entity = plainToInstance(UserEntity, user); // 解决创建用户时 @BeforeInsert 不执行
+    //   return await this.saveOne(entity);
+    // } else {
+    //   return R.err('用户已存在');
+    // }
   }
 
   async page(currentPage: number, pageSize: number, user: UserPageDto) {
-    console.log(typeof currentPage, typeof pageSize);
-    console.log(user);
     // let qb = this.dataSource
     //   .getRepository(UserEntity)
     //   .createQueryBuilder('user');
@@ -56,15 +66,120 @@ export class UserService extends BaseService<UserDto> {
 
     // 或使用 .getMany() 不会返回总数
 
-    const result: [UserEntity[], number] = await this.dataSource
-      .getRepository(UserEntity)
-      .createQueryBuilder('user')
-      .where({ ...user, delFlag: 0 })
-      .skip(pageSize * (currentPage - 1))
-      .take(pageSize)
-      .getManyAndCount();
+    // const result: [UserEntity[], number] = await this.dataSource
+    //   .getRepository(UserEntity)
+    //   .createQueryBuilder('user')
+    //   // .where({ ...user, delFlag: 0 })
+    //   // .where('user.username LIKE :username', { username: `%${user.username}%` })
+    //   // .where('user.password LIKE :password; user.username LIKE :username', {
+    //   //   username: `%${user.username}%`,
+    //   //   password: `%12%`,
+    //   // })
+    //   .where(fuzzyquery(user))
+    //   // 按时间倒序
+    //   .orderBy('user.createdTime', 'DESC')
+    //   .skip(pageSize * (currentPage - 1))
+    //   .take(pageSize)
+    //   .select([
+    //     'user.username',
+    //     'user.state',
+    //     'user.delFlag',
+    //     'user.createdTime',
+    //     'user.updatedTime',
+    //     'user.userId',
+    //   ])
+    //   .getManyAndCount();
+    // return R.ok('成功', { total: result[1], results: result[0] });
+    const data = await this.findPage(currentPage, pageSize, user);
+    return data;
+  }
 
-    return R.ok('成功', { total: result[1], results: result[0] });
+  /**
+   * 启用/禁用
+   * @date 2022-08-09
+   * @param {any} {userId}:{userId:string}
+   * @returns {any}
+   */
+  async changeState({ userId }: { userId: string }): Promise<Res> {
+    // const user = await this.dataSource
+    //   .getRepository(UserEntity)
+    //   .createQueryBuilder('user')
+    //   .where(`user.userId = :userId`, {
+    //     userId,
+    //   })
+    //   .getOne();
+    // const user = await this.dataSource
+    //   .getRepository(UserEntity)
+    //   .createQueryBuilder('user')
+    //   .where({ userId: userId })
+    //   .getOne();
+    // const user = await this.findOne(`user.userId = :userId`, {
+    //   userId,
+    // });
+    const user = await this.findOne({ userId: userId });
+    if (!user) return R.err('用户不存在');
+    if (user.state == 0) {
+      user.state = 1;
+    } else {
+      user.state = 0;
+    }
+    const updateUser = await this.dataSource
+      .createQueryBuilder()
+      .update(UserEntity)
+      .set(user)
+      .where('userId = :userId', {
+        userId,
+      })
+      .execute();
+    if (updateUser.affected == 1) {
+      return R.ok('更新成功');
+    } else {
+      return R.err('更新失败');
+    }
+  }
+
+  /**
+   * 假删除
+   * @date 2022-08-09
+   * @param {any} {userId}:{userId:string}
+   * @returns {any}
+   */
+  async changeDelFlag({ userId }: { userId: string }): Promise<Res> {
+    const user = await this.findOne({ userId: userId });
+    if (!user) return R.err('用户不存在');
+    if (user.delFlag == 0) {
+      user.delFlag = 1;
+    }
+    // const updateUser = await this.dataSource
+    //   .createQueryBuilder()
+    //   .update(UserEntity)
+    //   .set(user)
+    //   .where('userId = :userId', {
+    //     userId,
+    //   })
+    //   .execute();
+    const updateUser = await this.update(user, { userId: userId });
+
+    if (updateUser.affected == 1) {
+      return R.ok('更新成功');
+    } else {
+      return R.err('更新失败');
+    }
+  }
+
+  /**
+   * 真删除
+   * @date 2022-08-09
+   * @param {any} {userId}:{userId:string}
+   * @returns {any}
+   */
+  async delUser({ userId }: { userId: string }): Promise<Res> {
+    const data = await this.delete({ userId });
+    if (data.affected == 1) {
+      return R.ok('删除成功');
+    } else {
+      return R.err('用户不存在');
+    }
   }
 
   async relation(roleId: string) {

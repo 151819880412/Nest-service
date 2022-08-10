@@ -11,6 +11,8 @@ export class UserDto {
   @IsString({ message: '参数password要求是字符串!' })
   @IsString()
   readonly password: string;
+
+  readonly userId: string;
 }
 
 export class UserPageDto {

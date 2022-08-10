@@ -1,4 +1,4 @@
-interface ResponseInterFace {
+export interface ResponseInterFace {
   code: number;
   message: string;
   data: any;

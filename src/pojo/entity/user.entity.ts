@@ -62,7 +62,9 @@ export class UserEntity extends BaseEntity {
     name: 'created_time',
     transformer: {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
-      to(n) {},
+      to(n) {
+        return n;
+      },
       from(n) {
         if (n instanceof Date) {
           return FormtToString(n, 'yyyy-MM-dd HH:mm:ss');
@@ -91,7 +93,6 @@ export class UserEntity extends BaseEntity {
   updatedTime: Date;
 
   @BeforeInsert()
-  @BeforeUpdate()
   public createDate() {
     this.createdTime = Formt('yyyy-MM-dd HH:mm:ss') as unknown as Date;
   }
@@ -116,4 +117,9 @@ export class UserEntity extends BaseEntity {
   // 不用中间表关联
   @Column('varchar', { array: true, default: [] })
   roles: Array<string>;
+
+  constructor(partial: Partial<UserEntity>) {
+    super();
+    Object.assign(this, partial);
+  }
 }
