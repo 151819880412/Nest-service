@@ -80,4 +80,26 @@ export class UserController {
   delUser(@Body() data: { userId: string }): Promise<Res> {
     return this.userService.delUser(data);
   }
+
+  /**
+   * 根据id查询用户
+   * @date 2022-08-10
+   * @param {any} '/delUser'
+   * @returns {any}
+   */
+  @Post('/queryUserById')
+  queryUserById(@Body() data: { userId: string }): Promise<Res> {
+    return this.userService.queryUserById(data);
+  }
+
+  /**
+   * 编辑用户
+   * @date 2022-08-10
+   * @param {any} '/delUser'
+   * @returns {any}
+   */
+  @Post('/editor')
+  editor(@Body() data: UserDto): Promise<Res> {
+    return this.userService.editor(data);
+  }
 }

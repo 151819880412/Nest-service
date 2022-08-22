@@ -4,15 +4,15 @@ import { LoginModule } from './module/login.module';
 import { StatusMonitorModule } from 'nest-status-monitor';
 import statusMonitorConfig from './config/statusMonitor';
 import { AuthModule } from './module/auth.module';
-import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/auth.guard';
 import { ConfigModule } from '@nestjs/config';
 import appConfig from './config/app.config';
 import { database } from './config/database';
 import { CoreModule } from './config/core';
 import { UserModule } from './module/user.module';
-import { PermissionModel } from './module/permission.model';
 import { RoleModule } from './module/role.module';
+import { MenuModel } from './module/menu.model';
 
 @Module({
   imports: [
@@ -23,7 +23,8 @@ import { RoleModule } from './module/role.module';
     // 角色
     RoleModule,
     // 权限
-    PermissionModel,
+    // 菜单
+    MenuModel,
     // 中间件
     CommonModule,
     // 异常监控

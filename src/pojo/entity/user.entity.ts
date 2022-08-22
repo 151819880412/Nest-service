@@ -115,8 +115,8 @@ export class UserEntity extends BaseEntity {
   // roles: RoleEntity[];
 
   // 不用中间表关联
-  @Column('varchar', { array: true, default: [] })
-  roles: Array<string>;
+  // @Column('varchar', { array: true, default: [] })
+  // roles: Array<string>;
 
   constructor(partial: Partial<UserEntity>) {
     super();

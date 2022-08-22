@@ -36,6 +36,7 @@
     "class-validator": "^0.13.2",
     "i": "^0.3.7",
     "ioredis": "^5.2.2",
+    "lodash": "^4.17.21",
     "nest-status-monitor": "^0.1.4",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",

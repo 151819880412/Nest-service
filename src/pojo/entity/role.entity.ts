@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { Formt } from 'src/utils/DateFormt';
+import { Formt, FormtToString } from 'src/utils/DateFormt';
 import {
   BaseEntity,
   BeforeInsert,
@@ -7,6 +7,8 @@ import {
   Column,
   Entity,
   Index,
+  JoinTable,
+  ManyToMany,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
@@ -32,15 +34,49 @@ export class RoleEntity extends BaseEntity {
   @Index({ unique: true })
   roleName: string;
 
-  @Column('timestamp', { nullable: true, name: 'created_time' })
-  @Type(() => Date)
+  // 0 启用 1 禁用
+  @Column('int', { default: 0 })
+  state: number;
+
+  // 0 删除 1 未删除
+  @Column('int', { default: 0, name: 'del_flag' })
+  delFlag: number;
+
+  @Column({
+    nullable: true,
+    name: 'created_time',
+    transformer: {
+      to(n) {
+        return n;
+      },
+      from(n) {
+        if (n instanceof Date) {
+          return FormtToString(n, 'yyyy-MM-dd HH:mm:ss');
+        }
+        return n;
+      },
+    },
+  })
   createdTime: Date;
 
-  @Column('timestamp', { nullable: true, name: 'updated_time' })
+  @Column({
+    nullable: true,
+    name: 'updated_time',
+    transformer: {
+      to(n) {
+        return n;
+      },
+      from(n) {
+        if (n instanceof Date) {
+          return FormtToString(n, 'yyyy-MM-dd HH:mm:ss');
+        }
+        return n;
+      },
+    },
+  })
   updatedTime: string;
 
   @BeforeInsert()
-  @BeforeUpdate()
   public createDate() {
     this.createdTime = Formt('yyyy-MM-dd HH:mm:ss') as unknown as Date;
   }
@@ -57,20 +93,16 @@ export class RoleEntity extends BaseEntity {
   // })
   // users: UserEntity[];
 
-  // 不用中间表关联
-  @Column('varchar', { nullable: true, array: true })
-  users: Array<string>;
+  // // 不用中间表关联
+  // @Column('varchar', { nullable: true, array: true })
+  // users: Array<string>;
 
-  // 无中间实体表的配置
+  // // 无中间实体表的配置
   // @ManyToMany((type) => PermissionEntity, (perm) => perm.roles)
   // @JoinTable({
   //   name: 'role_perm',
-  //   joinColumns: [{ name: 'role_id' }],
-  //   inverseJoinColumns: [{ name: 'perm_id' }],
+  //   // joinColumns: [{ name: 'role_id' }],
+  //   // inverseJoinColumns: [{ name: 'perm_id' }],
   // })
   // perms: PermissionEntity[];
-
-  // @ManyToMany(() => UserEntity, (category) => category.questions)
-  // @JoinTable()
-  // categories: UserEntity[];
 }

@@ -1,5 +1,13 @@
 // BaseQueryBuilderService.ts
-import { Brackets, DataSource, EntityTarget, ObjectLiteral } from 'typeorm';
+import {
+  Brackets,
+  DataSource,
+  DeleteResult,
+  EntityTarget,
+  InsertResult,
+  ObjectLiteral,
+  UpdateResult,
+} from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { fuzzyquery } from 'src/utils/Fuzzyquery';
 import { R, Res } from 'src/response/R';
@@ -69,6 +77,12 @@ export class BaseQueryBuilderService<E> {
   //   return data;
   // }
 
+  /**
+   * 查询单个
+   * @date 2022-08-17
+   * @param {any} where:|string|((qb:this
+   * @returns {any}
+   */
   async findOne(
     where:
       | string
@@ -77,7 +91,7 @@ export class BaseQueryBuilderService<E> {
       | ObjectLiteral
       | ObjectLiteral[],
     parameters?: ObjectLiteral,
-  ) {
+  ): Promise<E> {
     const data = await this.dataSource
       .getRepository(this.entity)
       .createQueryBuilder(this.dataSourceStr)
@@ -86,6 +100,115 @@ export class BaseQueryBuilderService<E> {
     return data;
   }
 
+  /**
+   * 关联查询单个
+   * @date 2022-08-17
+   * @param {any} where:|string|((qb:this
+   * @returns {any}
+   */
+  async relationFindOne(
+    where:
+      | string
+      | ((qb: this) => string)
+      | Brackets
+      | ObjectLiteral
+      | ObjectLiteral[],
+    parameters?: ObjectLiteral,
+  ): Promise<E> {
+    const data = await this.dataSource
+      .getRepository(this.entity)
+      .createQueryBuilder(this.dataSourceStr)
+      // .leftJoinAndSelect(Article, 'article', 'user.id = article.createBy')
+      .where(where, parameters)
+      .getOne();
+    return data;
+  }
+
+  /**
+   * 查询多个
+   * @date 2022-08-17
+   * @param {any} where:|string|((qb:this
+   * @returns {any}
+   */
+  async findMany(
+    entity?: EntityTarget<E>,
+    dataSourceStr?: string,
+  ): Promise<any> {
+    const data = await this.dataSource
+      .getRepository(entity || this.entity)
+      .createQueryBuilder(dataSourceStr || this.dataSourceStr)
+      .where({ delFlag: 0 })
+      .getMany();
+    return data;
+  }
+
+  /**
+   * 保存单个
+   * @date 2022-08-17
+   * @param {any} where:|string|((qb:this
+   * @returns {any}
+   */
+  async saveOne(entity: E): Promise<InsertResult> {
+    const data = await this.dataSource
+      .createQueryBuilder()
+      .insert()
+      .into(this.entity)
+      .values(entity)
+      .execute();
+    return data;
+  }
+
+  /**
+   * 关联保存
+   * @date 2022-08-17
+   * @param {any} where:|string|((qb:this
+   * @returns {any}
+   */
+  async relationSaveOne<T>(
+    entity: EntityTarget<T>,
+    obj: Array<T>,
+  ): Promise<InsertResult> {
+    const data = await this.dataSource
+      .createQueryBuilder()
+      .insert()
+      .into(entity)
+      .values(obj)
+      .execute();
+    return data;
+  }
+
+  /**
+   * 关联保存
+   * @date 2022-08-17
+   * @param {any} where:|string|((qb:this
+   * @returns {any}
+   */
+  async relationDelete<T>(
+    entity: EntityTarget<T>,
+    where:
+      | string
+      | ((qb: this) => string)
+      | Brackets
+      | ObjectLiteral
+      | ObjectLiteral[],
+    parameters?: ObjectLiteral,
+  ): Promise<DeleteResult> {
+    const data = this.dataSource
+      .createQueryBuilder()
+      .delete()
+      .from(entity)
+      .where(where, parameters)
+      .execute();
+    return data;
+  }
+
+  /**
+   * 更新
+   * @date 2022-08-17
+   * @param {any} values:any
+   * @param {any} where:|string|((qb:this
+   * @returns {any}
+   */
   async update(
     values: any,
     where:
@@ -95,7 +218,7 @@ export class BaseQueryBuilderService<E> {
       | ObjectLiteral
       | ObjectLiteral[],
     parameters?: ObjectLiteral,
-  ) {
+  ): Promise<UpdateResult> {
     const data = this.dataSource
       .createQueryBuilder()
       .update(this.entity)
@@ -105,6 +228,12 @@ export class BaseQueryBuilderService<E> {
     return data;
   }
 
+  /**
+   * 删除
+   * @date 2022-08-17
+   * @param {any} (qb:this
+   * @returns {any}
+   */
   async delete(
     where:
       | string
@@ -113,7 +242,7 @@ export class BaseQueryBuilderService<E> {
       | ObjectLiteral
       | ObjectLiteral[],
     parameters?: ObjectLiteral,
-  ) {
+  ): Promise<DeleteResult> {
     const data = this.dataSource
       .createQueryBuilder()
       .delete()

@@ -2,12 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserDto, UserPageDto } from 'src/pojo/dto/user.dto';
 import { UserEntity } from 'src/pojo/entity/user.entity';
-import { Connection, DataSource, ILike, Repository } from 'typeorm';
+import {
+  Connection,
+  DataSource,
+  getRepository,
+  ILike,
+  Repository,
+} from 'typeorm';
 import { BaseQueryBuilderService } from './BaseQueryBuilder.service';
 import { R, Res } from 'src/response/R';
 import { RoleEntity } from 'src/pojo/entity/role.entity';
 import { plainToInstance } from 'class-transformer';
 import { fuzzyquery } from 'src/utils/Fuzzyquery';
+import UserRoleEntity from 'src/pojo/entity/user-role.entity';
+import * as _ from 'lodash';
 
 @Injectable()
 // export class UserService {
@@ -43,18 +51,40 @@ export class UserService extends BaseQueryBuilderService<UserEntity> {
   // ) {
   //   super(dataSources, dataSourceStr, UserEntity);
   // }
+
+  /**
+   * 新增用户
+   * @date 2022-08-17
+   * @param {any} user:UserDto
+   * @returns {any}
+   */
   async register(user: UserDto) {
-    // const userOne = await this.findOne({
-    //   where: { username: user.username },
-    // });
-    // if (!userOne) {
-    //   const entity = plainToInstance(UserEntity, user); // 解决创建用户时 @BeforeInsert 不执行
-    //   return await this.saveOne(entity);
-    // } else {
-    //   return R.err('用户已存在');
-    // }
+    const userOne = await this.findOne({ username: user.username });
+    if (!userOne) {
+      const entity = plainToInstance(UserEntity, user); // 解决创建用户时 @BeforeInsert 不执行
+      return await this.saveOne(entity);
+      // const res = await this.saveOne(entity);
+      // const dto = plainToInstance(
+      //   UserRoleEntity,
+      //   user.roles.map((item) => {
+      //     return {
+      //       userId: res.generatedMaps[0].userId,
+      //       roleId: item,
+      //     };
+      //   }),
+      // );
+      // return await this.relationSaveOne<UserRoleEntity>(UserRoleEntity, dto);
+    } else {
+      return R.err('用户已存在');
+    }
   }
 
+  /**
+   * 用户分页
+   * @date 2022-08-18
+   * @param {any} UserEntity
+   * @returns {any}
+   */
   async page(currentPage: number, pageSize: number, user: UserPageDto) {
     // let qb = this.dataSource
     //   .getRepository(UserEntity)
@@ -182,6 +212,86 @@ export class UserService extends BaseQueryBuilderService<UserEntity> {
     }
   }
 
+  /**
+   * 根据id查询用户
+   * @date 2022-08-10
+   * @param {any} {userId}:{userId:string}
+   * @returns {any}
+   */
+  async queryUserById({ userId }: { userId: string }): Promise<Res> {
+    const user = await this.dataSource
+      .getRepository(this.entity)
+      .createQueryBuilder(this.dataSourceStr)
+      .where({ userId: userId })
+      .getOne();
+    if (!user) return R.err('用户不存在');
+
+    const AllRole = await this.findMany(RoleEntity, 'role');
+
+    const list: any = (await this.dataSource
+      .getRepository(UserEntity)
+      .createQueryBuilder('user')
+      .innerJoin(UserRoleEntity, 'userRole', 'user.userId = userRole.userId')
+      .innerJoinAndMapMany(
+        'user.list',
+        RoleEntity,
+        'role',
+        'role.roleId = userRole.roleId',
+      )
+      .where({ userId: userId })
+      .getOne()) || { lise: [] };
+
+    interface treeData extends RoleEntity {
+      isCheck?: boolean;
+    }
+    console.log(list);
+    _.intersectionWith(AllRole, list.list, _.isEqual).forEach(
+      (item: treeData) => (item.isCheck = true),
+    );
+
+    return R.ok('成功', { ...user, roles: AllRole });
+  }
+
+  async editor(users: UserDto) {
+    console.log(users);
+    const user = await this.findOne({ userId: users.userId });
+    if (!user) return R.err('用户不存在');
+
+    // 获取连接并创建新的queryRunner
+    const queryRunner = this.dataSource.createQueryRunner();
+    // 使用我们的新queryRunner建立真正的数据库连
+    await queryRunner.connect();
+    // 开始事务：
+    await queryRunner.startTransaction();
+    try {
+      const updateUser = await this.update(user, { userId: users.userId });
+      console.log(updateUser);
+      await this.relationDelete(UserRoleEntity, { userId: users.userId });
+      const dto = plainToInstance(
+        UserRoleEntity,
+        users.roles.map((item) => {
+          return {
+            userId: users.userId,
+            roleId: item,
+          };
+        }),
+      );
+      const obj = await this.relationSaveOne<UserRoleEntity>(
+        UserRoleEntity,
+        dto,
+      );
+      console.log(obj);
+      return R.ok('成功');
+    } catch (error) {
+      // 有错误做出回滚更改
+      await queryRunner.rollbackTransaction();
+      new Error('回滚' + error);
+      return R.err('回滚' + error);
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
   async relation(roleId: string) {
     // 使用中间表插入成功
     // const user = await this.dataSource
@@ -240,7 +350,7 @@ export class UserService extends BaseQueryBuilderService<UserEntity> {
       .getOne();
     console.log(role);
     console.log(user);
-    user.roles.push(role.roleId);
+    // user.roles.push(role.roleId);
     const aaa = await this.dataSource.manager.save(user);
     console.log(aaa);
     return aaa;

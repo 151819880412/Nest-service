@@ -13,6 +13,7 @@ export class UserDto {
   readonly password: string;
 
   readonly userId: string;
+  readonly roles: Array<string>;
 }
 
 export class UserPageDto {
