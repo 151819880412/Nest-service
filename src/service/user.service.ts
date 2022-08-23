@@ -252,7 +252,13 @@ export class UserService extends BaseQueryBuilderService<UserEntity> {
     return R.ok('成功', { ...user, roles: AllRole });
   }
 
-  async editor(users: UserDto) {
+  /**
+   * 编辑用户
+   * @date 2022-08-23
+   * @param {any} users
+   * @returns {any}
+   */
+  async editor(users: UserDto): Promise<Res> {
     console.log(users);
     const user = await this.findOne({ userId: users.userId });
     if (!user) return R.err('用户不存在');

@@ -2,9 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { RoleEntity } from '../../pojo/entity/role.entity';
 import { plainToInstance } from 'class-transformer';
-import { RolePageDto } from 'src/pojo/dto/role.dto';
+import { RoleEditorDto, RolePageDto } from 'src/pojo/dto/role.dto';
 import { BaseQueryBuilderService } from '../BaseQueryBuilder.service';
 import { R, Res } from 'src/response/R';
+import RoleMenuEntity from 'src/pojo/entity/role-menu.entity';
+import * as _ from 'lodash';
+import MenuEntity from 'src/pojo/entity/menu.entity';
+import { arrToTree } from 'src/utils';
 
 @Injectable()
 export class RoleServiceImpl extends BaseQueryBuilderService<RoleEntity> {
@@ -106,8 +110,92 @@ export class RoleServiceImpl extends BaseQueryBuilderService<RoleEntity> {
    * @returns {any}
    */
   async queryRoleById({ roleId }: { roleId: string }): Promise<Res> {
-    const role = await this.relationFindOne({ roleId: roleId });
+    // const trees = await this.dataSource
+    //   .getTreeRepository(MenuEntity)
+    //   .findTrees();
+
+    // console.log(trees);
+
+    const role = await this.dataSource
+      .getRepository(this.entity)
+      .createQueryBuilder(this.dataSourceStr)
+      .where({ roleId })
+      .getOne();
     if (!role) return R.err('角色不存在');
-    return R.ok('成功', role);
+
+    const AllMenu = await this.findMany(MenuEntity, 'menu');
+
+    const list: any = (await this.dataSource
+      .getRepository(RoleEntity)
+      .createQueryBuilder('role')
+      .innerJoin(RoleMenuEntity, 'roleMenu', 'role.roleId = roleMenu.roleId')
+      .innerJoinAndMapMany(
+        'role.list',
+        MenuEntity,
+        'menu',
+        'menu.menuId = roleMenu.menuId',
+      )
+      .where({ roleId })
+      .getOne()) || { lise: [] };
+
+    interface treeData extends RoleEntity {
+      isCheck?: boolean;
+    }
+    console.log(list);
+
+    _.intersectionWith(AllMenu, list.list, _.isEqual).forEach(
+      (item: treeData) => (item.isCheck = true),
+    );
+
+    return R.ok('成功', {
+      ...role,
+      menus: arrToTree(AllMenu, { root: 0, pidKey: 'parentId' }),
+    });
+  }
+
+  /**
+   * 编辑角色
+   * @date 2022-08-23
+   * @param {any} roles
+   * @returns {any}
+   */
+  async editor(roles: RoleEditorDto): Promise<Res> {
+    console.log(roles);
+    const role = await this.findOne({ roleId: roles.roleId });
+    if (!role) return R.err('角色不存在');
+
+    // 获取连接并创建新的queryRunner
+    const queryRunner = this.dataSource.createQueryRunner();
+    // 使用我们的新queryRunner建立真正的数据库连
+    await queryRunner.connect();
+    // 开始事务：
+    await queryRunner.startTransaction();
+    try {
+      const updateUser = await this.update(role, { roleId: role.roleId });
+      console.log(updateUser);
+      await this.relationDelete(RoleMenuEntity, { roleId: role.roleId });
+      const dto = plainToInstance(
+        RoleMenuEntity,
+        roles.menus.map((item) => {
+          return {
+            roleId: role.roleId,
+            menuId: item,
+          };
+        }),
+      );
+      const obj = await this.relationSaveOne<RoleMenuEntity>(
+        RoleMenuEntity,
+        dto,
+      );
+      console.log(obj);
+      return R.ok('成功');
+    } catch (error) {
+      // 有错误做出回滚更改
+      await queryRunner.rollbackTransaction();
+      new Error('回滚' + error);
+      return R.err('回滚' + error);
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

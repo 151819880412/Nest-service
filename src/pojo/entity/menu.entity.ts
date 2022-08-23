@@ -1,11 +1,23 @@
-import { PrimaryGeneratedColumn, Column, Entity, BaseEntity } from 'typeorm';
+import {
+  PrimaryGeneratedColumn,
+  Column,
+  Entity,
+  BaseEntity,
+  TreeParent,
+  TreeChildren,
+  Tree,
+} from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Entity({ name: 'menu' })
+// @Tree('nested-set')
 export default class MenuEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   @ApiProperty()
   id: number;
+
+  @PrimaryGeneratedColumn('uuid', { name: 'menu_id' })
+  menuId: string;
 
   @Column({ name: 'parent_id', nullable: true })
   @ApiProperty()
@@ -13,7 +25,7 @@ export default class MenuEntity extends BaseEntity {
 
   @Column()
   @ApiProperty()
-  name: string;
+  menuName: string;
 
   @Column({ nullable: true })
   @ApiProperty()
@@ -36,4 +48,10 @@ export default class MenuEntity extends BaseEntity {
 
   @Column({ default: 0, name: 'del_flag' })
   delFlag: number;
+
+  // @TreeChildren()
+  // children: MenuEntity[];
+
+  // @TreeParent()
+  // parent: MenuEntity;
 }

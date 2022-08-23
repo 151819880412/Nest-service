@@ -1,7 +1,7 @@
 import { Body, Controller, Param, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/common/decorators/public.decorator';
-import { RolePageDto } from 'src/pojo/dto/role.dto';
+import { RoleEditorDto, RolePageDto } from 'src/pojo/dto/role.dto';
 import { Res } from 'src/response/R';
 import { RoleEntity } from '../pojo/entity/role.entity';
 import { RoleServiceImpl } from '../service/impl/role.service.impl';
@@ -69,5 +69,16 @@ export class RoleController {
   @Post('/queryRoleById')
   queryRoleById(@Body() data: { roleId: string }): Promise<Res> {
     return this.roleService.queryRoleById(data);
+  }
+
+  /**
+   * 编辑角色
+   * @date 2022-08-23
+   * @param {any} '/editor'
+   * @returns {any}
+   */
+  @Post('/editor')
+  editor(@Body() data: RoleEditorDto): Promise<Res> {
+    return this.roleService.editor(data);
   }
 }
