@@ -16,6 +16,8 @@ import { plainToInstance } from 'class-transformer';
 import { fuzzyquery } from 'src/utils/Fuzzyquery';
 import UserRoleEntity from 'src/pojo/entity/user-role.entity';
 import * as _ from 'lodash';
+import RoleMenuEntity from 'src/pojo/entity/role-menu.entity';
+import MenuEntity from 'src/pojo/entity/menu.entity';
 
 @Injectable()
 // export class UserService {

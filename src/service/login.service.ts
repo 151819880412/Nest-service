@@ -19,6 +19,11 @@ import {
   plainToClass,
   plainToInstance,
 } from 'class-transformer';
+import MenuEntity from 'src/pojo/entity/menu.entity';
+import RoleMenuEntity from 'src/pojo/entity/role-menu.entity';
+import { RoleEntity } from 'src/pojo/entity/role.entity';
+import UserRoleEntity from 'src/pojo/entity/user-role.entity';
+import { arrToTree } from 'src/utils';
 
 @Injectable()
 export class LoginService extends BaseService<UserEntity> {
@@ -50,7 +55,7 @@ export class LoginService extends BaseService<UserEntity> {
    * @param {any} user:LoginDto
    * @returns {any}
    */
-  async registerLogin(user: UserEntity) {
+  async registerLogin(user: UserEntity): Promise<any> {
     // const users = await this.dataSource.query(
     //   `SELECT * FROM "user" WHERE username = '${user.username}'`,
     // );
@@ -65,8 +70,43 @@ export class LoginService extends BaseService<UserEntity> {
       console.log(regUser);
       return await this.authService.getToken(regUser);
     } else {
+      const data: any = await this.dataSource
+        .getRepository(UserEntity)
+        .createQueryBuilder('user')
+        .leftJoinAndSelect(
+          UserRoleEntity,
+          'userRole',
+          'user.userId = userRole.userId',
+        )
+        .leftJoinAndMapMany(
+          'user.roles',
+          RoleEntity,
+          'role',
+          'role.roleId = userRole.roleId',
+        )
+        .where({ userId: userOne.userId })
+        .leftJoinAndSelect(
+          RoleMenuEntity,
+          'roleMenu',
+          'role.roleId = roleMenu.roleId',
+        )
+        .leftJoinAndMapMany(
+          'user.menus',
+          MenuEntity,
+          'menu',
+          'menu.menuId = roleMenu.menuId',
+        )
+        .getOne();
+      const auth = arrToTree(data.menus, { root: null }) || [];
+      const roles = data.roles;
       // 登录
-      return await this.authService.getToken(userOne);
+      const token = await this.authService.getToken(userOne);
+      return {
+        ...userOne,
+        ...token,
+        roles,
+        auth,
+      };
     }
   }
 

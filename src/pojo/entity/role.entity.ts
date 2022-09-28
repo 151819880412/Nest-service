@@ -83,7 +83,6 @@ export class RoleEntity extends BaseEntity {
 
   @BeforeUpdate()
   updateDates() {
-    console.log(222);
     this.updatedTime = Formt('yyyy-MM-dd HH:mm:ss');
   }
 

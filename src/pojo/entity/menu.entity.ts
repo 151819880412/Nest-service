@@ -2,20 +2,18 @@ import {
   PrimaryGeneratedColumn,
   Column,
   Entity,
-  BaseEntity,
   TreeParent,
   TreeChildren,
   Tree,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { BasesEntity } from './bases.entity';
 
 @Entity({ name: 'menu' })
 // @Tree('nested-set')
-export default class MenuEntity extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  @ApiProperty()
-  id: number;
-
+// @Tree('closure-table')
+@Tree('materialized-path')
+export default class MenuEntity extends BasesEntity {
   @PrimaryGeneratedColumn('uuid', { name: 'menu_id' })
   menuId: string;
 
@@ -46,12 +44,18 @@ export default class MenuEntity extends BaseEntity {
   @Column({ type: 'int', default: 0, nullable: true })
   sort: number;
 
-  @Column({ default: 0, name: 'del_flag' })
+  @Column({ default: 1, name: 'del_flag' })
   delFlag: number;
 
-  // @TreeChildren()
-  // children: MenuEntity[];
+  @TreeChildren()
+  children: MenuEntity[];
 
-  // @TreeParent()
-  // parent: MenuEntity;
+  // 启用级联删除
+  @TreeParent({ onDelete: 'CASCADE' })
+  parent: MenuEntity;
+
+  // constructor(data) {
+  //   super();
+  //   Object.assign(this, data);
+  // }
 }

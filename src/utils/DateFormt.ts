@@ -31,7 +31,7 @@ export const Formt = function (fmt: string, second = 1): string {
 export const FormtToString = function (
   date: Date,
   fmt: string,
-  second = 1,
+  second = 0,
 ): string {
   const o = {
     'M+': date.getMonth() + 1, //月份

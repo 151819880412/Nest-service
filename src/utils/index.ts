@@ -25,5 +25,21 @@ export function arrToTree(
     }
     return node;
   }
-  return getNode(root);
+  return getNode(root)[0];
+}
+
+export function treeToArr(array: Array<object>, key: string) {
+  const list = [];
+  function flatArr(arr: Array<object>) {
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i][key]) {
+        list.push(Object.assign({}, arr[i], { [key]: [] }));
+        flatArr(arr[i][key]);
+      } else {
+        list.push(arr[i]);
+      }
+    }
+  }
+  flatArr(array);
+  return list;
 }

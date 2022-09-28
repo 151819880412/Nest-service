@@ -13,9 +13,12 @@ import { CoreModule } from './config/core';
 import { UserModule } from './module/user.module';
 import { RoleModule } from './module/role.module';
 import { MenuModel } from './module/menu.model';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { BasesEntity } from './pojo/entity/bases.entity';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([BasesEntity]),
     // 登录模块
     LoginModule,
     // 用户

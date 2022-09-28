@@ -148,7 +148,7 @@ export class BaseQueryBuilderService<E> {
    * @param {any} where:|string|((qb:this
    * @returns {any}
    */
-  async saveOne(entity: E): Promise<InsertResult> {
+  async saveOne(entity): Promise<InsertResult> {
     const data = await this.dataSource
       .createQueryBuilder()
       .insert()
@@ -166,7 +166,7 @@ export class BaseQueryBuilderService<E> {
    */
   async relationSaveOne<T>(
     entity: EntityTarget<T>,
-    obj: Array<T>,
+    obj,
   ): Promise<InsertResult> {
     const data = await this.dataSource
       .createQueryBuilder()

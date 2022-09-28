@@ -8,7 +8,7 @@ import { R, Res } from 'src/response/R';
 import RoleMenuEntity from 'src/pojo/entity/role-menu.entity';
 import * as _ from 'lodash';
 import MenuEntity from 'src/pojo/entity/menu.entity';
-import { arrToTree } from 'src/utils';
+import { arrToTree, treeToArr } from 'src/utils';
 
 @Injectable()
 export class RoleServiceImpl extends BaseQueryBuilderService<RoleEntity> {
@@ -123,7 +123,9 @@ export class RoleServiceImpl extends BaseQueryBuilderService<RoleEntity> {
       .getOne();
     if (!role) return R.err('角色不存在');
 
-    const AllMenu = await this.findMany(MenuEntity, 'menu');
+    const AllMenu = await this.dataSource
+      .getTreeRepository(MenuEntity)
+      .findTrees();
 
     const list: any = (await this.dataSource
       .getRepository(RoleEntity)
@@ -138,18 +140,28 @@ export class RoleServiceImpl extends BaseQueryBuilderService<RoleEntity> {
       .where({ roleId })
       .getOne()) || { lise: [] };
 
-    interface treeData extends RoleEntity {
-      isCheck?: boolean;
-    }
-    console.log(list);
-
-    _.intersectionWith(AllMenu, list.list, _.isEqual).forEach(
-      (item: treeData) => (item.isCheck = true),
-    );
-
+    const selectTree = (arr) => {
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i].children && arr[i].children.length > 0) {
+          list?.list?.forEach((item) => {
+            if (item.menuId == arr[i].menuId && item.parentId) {
+              arr[i].isCheck = true;
+            }
+          });
+          selectTree(arr[i].children);
+        } else {
+          list?.list?.forEach((item) => {
+            if (item.menuId == arr[i].menuId && item.parentId) {
+              arr[i].isCheck = true;
+            }
+          });
+        }
+      }
+    };
+    selectTree(AllMenu);
     return R.ok('成功', {
       ...role,
-      menus: arrToTree(AllMenu, { root: 0, pidKey: 'parentId' }),
+      menus: AllMenu,
     });
   }
 
