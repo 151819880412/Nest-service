@@ -29,11 +29,15 @@ export default class MenuEntity extends BasesEntity {
   @ApiProperty()
   path: string;
 
+  @Column({ nullable: true })
+  @ApiProperty()
+  componentPath: string;
+
   @Column({ name: 'btn_name', nullable: true })
   @ApiProperty()
   btnName: string;
 
-  @Column({ default: 0 })
+  @Column({ default: 0, comment: '类型，0：菜单，1：路由，2：按钮' })
   @ApiProperty()
   type: number;
 

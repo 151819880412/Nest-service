@@ -7,10 +7,15 @@ export class MenuItemsDto {
   @IsString({ message: '参数menuName要求是字符串!' })
   readonly menuName: string;
 
-  @ApiProperty({ description: '路径', type: String })
-  @IsNotEmpty({ message: 'path不能为空' })
-  @IsString({ message: '参数path要求是字符串!' })
+  @ApiProperty({ description: '路由地址', type: String })
+  // @IsNotEmpty({ message: 'routerPath不能为空' })
+  // @IsString({ message: '参数routerPath要求是字符串!' })
   readonly path: string;
+
+  @ApiProperty({ description: '组件路径', type: String })
+  // @IsNotEmpty({ message: 'componentPath不能为空' })
+  // @IsString({ message: '参数componentPath要求是字符串!' })
+  readonly componentPath: string;
 
   @ApiProperty({ description: '名称', type: Number })
   @IsNotEmpty({ message: 'sort不能为空' })

@@ -16,6 +16,7 @@ export function arrToTree(
 ) {
   function getNode(id: string | number) {
     const node: Array<object> = [];
+    console.log(node, 111, source);
     for (let i = 0, len = source.length; i < len; i++) {
       if (source[i][pidKey] === id) {
         const children = getNode(source[i][idKey]);

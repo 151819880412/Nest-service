@@ -133,11 +133,12 @@ export class BaseQueryBuilderService<E> {
   async findMany(
     entity?: EntityTarget<E>,
     dataSourceStr?: string,
+    where?: object,
   ): Promise<any> {
     const data = await this.dataSource
       .getRepository(entity || this.entity)
       .createQueryBuilder(dataSourceStr || this.dataSourceStr)
-      .where({ delFlag: 0 })
+      .where(Object.assign({}, { delFlag: 0 }, where))
       .getMany();
     return data;
   }

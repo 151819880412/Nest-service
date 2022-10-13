@@ -70,34 +70,87 @@ export class LoginService extends BaseService<UserEntity> {
       console.log(regUser);
       return await this.authService.getToken(regUser);
     } else {
-      const data: any = await this.dataSource
-        .getRepository(UserEntity)
-        .createQueryBuilder('user')
-        .leftJoinAndSelect(
-          UserRoleEntity,
-          'userRole',
-          'user.userId = userRole.userId',
-        )
-        .leftJoinAndMapMany(
-          'user.roles',
-          RoleEntity,
-          'role',
-          'role.roleId = userRole.roleId',
-        )
-        .where({ userId: userOne.userId })
-        .leftJoinAndSelect(
-          RoleMenuEntity,
-          'roleMenu',
-          'role.roleId = roleMenu.roleId',
-        )
-        .leftJoinAndMapMany(
-          'user.menus',
-          MenuEntity,
-          'menu',
-          'menu.menuId = roleMenu.menuId',
-        )
-        .getOne();
-      const auth = arrToTree(data.menus, { root: null }) || [];
+      const data: any =
+        (await this.dataSource
+          .getRepository(UserEntity)
+          .createQueryBuilder('user')
+          .leftJoinAndSelect(
+            UserRoleEntity,
+            'userRole',
+            'user.userId = userRole.userId',
+          )
+          .leftJoinAndMapMany(
+            'user.roles',
+            RoleEntity,
+            'role',
+            'role.roleId = userRole.roleId',
+          )
+          .where({ userId: userOne.userId })
+          .leftJoinAndSelect(
+            RoleMenuEntity,
+            'roleMenu',
+            'role.roleId = roleMenu.roleId',
+          )
+          .leftJoinAndMapMany(
+            'user.menus',
+            MenuEntity,
+            'menu',
+            'menu.menuId = roleMenu.menuId',
+          )
+          .orderBy(`menu.sort`, 'ASC')
+          .andWhere('menu.type < 2')
+          .getOne()) || {};
+
+      const btn = await this.dataSource
+        .getRepository(MenuEntity)
+        .createQueryBuilder('menu')
+        .where('menu.type >= 2 ')
+        .andWhere('menu.delFlag = 0')
+        .getMany();
+
+      // const aaa = await this.dataSource
+      // .getRepository(UserEntity)
+      // .createQueryBuilder('user')
+      // .leftJoinAndSelect(
+      //   UserRoleEntity,
+      //   'userRole',
+      //   'user.userId = userRole.userId',
+      // )
+      // .where({ userId: userOne.userId })
+      // .leftJoinAndMapMany(
+      //   'user.roles',
+      //   RoleEntity,
+      //   'role',
+      //   'role.roleId = userRole.roleId',
+      // )
+      // .leftJoinAndSelect(
+      //   RoleMenuEntity,
+      //   'roleMenu',
+      //   'role.roleId = roleMenu.roleId',
+      // )
+      // .leftJoinAndMapMany(
+      //   'user.menus',
+      //   MenuEntity,
+      //   'menu',
+      //   'menu.menuId = roleMenu.menuId',
+      // )
+      // .where({ userId: userOne.userId })
+      // .getMany();
+
+      let menuArr = [];
+      if (Array.isArray(data.menus)) {
+        for (let i = 0; i < data.menus.length; i++) {
+          if (data.menus[i].parentId) {
+            menuArr = menuArr.concat(
+              await this.dataSource
+                .getTreeRepository(MenuEntity)
+                .findAncestors(data.menus[i]),
+            );
+          }
+        }
+      }
+
+      const auth = arrToTree(menuArr, { root: null }) || [];
       const roles = data.roles;
       // 登录
       const token = await this.authService.getToken(userOne);
@@ -106,6 +159,7 @@ export class LoginService extends BaseService<UserEntity> {
         ...token,
         roles,
         auth,
+        btn,
       };
     }
   }
