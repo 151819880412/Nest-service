@@ -1,10 +1,11 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Get, Query } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/common/decorators/public.decorator';
 import { UserDto } from 'src/pojo/dto/user.dto';
 import { UserChangePwdDto } from 'src/pojo/dto/userChangePwd.dto';
 import { UserEntity } from 'src/pojo/entity/user.entity';
+import { Res } from 'src/response/R';
 import { TokenType } from 'src/service/impl/auth.service.impl';
 import { LoginService } from 'src/service/login.service';
 
@@ -38,8 +39,13 @@ export class LoginController {
    */
   @Public()
   @Post('changePwd')
-  changePwd(@Body() user: UserChangePwdDto) {
+  changePwd(@Body() user: UserChangePwdDto): Promise<Res> {
     return this.userService.changePwd(user);
+  }
+
+  @Get('/logOut')
+  logOut(@Query('userId') userId: string): Promise<Res<number>> {
+    return this.userService.logOut(userId);
   }
 
   @Post('test')

@@ -24,16 +24,17 @@ import RoleMenuEntity from 'src/pojo/entity/role-menu.entity';
 import { RoleEntity } from 'src/pojo/entity/role.entity';
 import UserRoleEntity from 'src/pojo/entity/user-role.entity';
 import { arrToTree } from 'src/utils';
+import { BaseQueryBuilderService } from './BaseQueryBuilder.service';
 
 @Injectable()
-export class LoginService extends BaseService<UserEntity> {
+export class LoginService extends BaseQueryBuilderService<UserEntity> {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    dataSource: DataSource,
     private readonly authService: AuthServiceImpl,
-    private readonly dataSource: DataSource,
   ) {
-    super(userRepository);
+    super(dataSource, 'user', UserEntity);
   }
   async login(user: LoginDto) {
     const userOne: UserEntity = await this.findOne({
@@ -59,14 +60,12 @@ export class LoginService extends BaseService<UserEntity> {
     // const users = await this.dataSource.query(
     //   `SELECT * FROM "user" WHERE username = '${user.username}'`,
     // );
-    const userOne: UserEntity = await this.findOne({
-      where: { username: user.username },
-    });
+    const userOne: UserEntity = await this.findOne({ username: user.username });
     if (!userOne) {
       // 注册+登录
       const entity = plainToInstance(UserEntity, user); // 解决创建用户时 @BeforeInsert 不执行
       // const entity = Object.assign(new UserEntity(), user);   // 解决创建用户时 @BeforeInsert 不执行
-      const regUser: UserEntity = await this.saveOne(entity);
+      const regUser = (await this.saveOne(entity)) as unknown as UserEntity;
       console.log(regUser);
       return await this.authService.getToken(regUser);
     } else {
@@ -228,5 +227,11 @@ export class LoginService extends BaseService<UserEntity> {
         return res.affected > 0 ? R.ok('更新成功') : R.err('更新失败');
       }
     }
+  }
+
+  async logOut(userId: string): Promise<Res<number>> {
+    const user = await this.findOne({ userId: userId });
+    const res = await this.authService.clearToken(user);
+    return R.ok('退出成功', res);
   }
 }

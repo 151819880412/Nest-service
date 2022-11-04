@@ -51,4 +51,10 @@ export class AuthServiceImpl implements AuthService {
       refreshToken,
     };
   }
+
+  async clearToken(user: UserEntity) {
+    const redis = await RedisInstance.initRedis('auth.certificate', 0);
+    const key = `${user.userId}-${user.username}`;
+    return redis.del(`${key}`);
+  }
 }

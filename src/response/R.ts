@@ -5,10 +5,10 @@ export interface ResponseInterFace {
   type: 'success' | 'error';
 }
 
-export class Res implements ResponseInterFace {
+export class Res<T = any> implements ResponseInterFace {
   code: number;
   message: string;
-  data: any;
+  data: T;
   type: 'success' | 'error';
 
   ok(message: string, data: any = {}) {

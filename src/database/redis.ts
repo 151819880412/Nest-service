@@ -4,7 +4,7 @@ import { redisConfig } from 'src/config/database';
 
 const n = 0;
 const redisIndex = []; // 用于记录 redis 实例索引
-const redisList = []; // 用于存储 redis 实例
+const redisList: Array<Redis> = []; // 用于存储 redis 实例
 
 export class RedisInstance {
   static async initRedis(method: string, db = 0) {
@@ -31,11 +31,11 @@ export class RedisInstance {
    */
   static async setRedis(
     method: string,
-    db = 0,
+    db: any = 0,
     key: string,
     val: string,
-    timeout = 60 * 60,
-  ) {
+    timeout: any = 60 * 60,
+  ): Promise<void> {
     if (typeof val == 'object') {
       val = JSON.stringify(val);
     }
@@ -52,7 +52,11 @@ export class RedisInstance {
    * @param {any} key:string
    * @returns {any}
    */
-  static async getRedis(method: string, db = 0, key: string) {
+  static async getRedis(
+    method: string,
+    db: any = 0,
+    key: string,
+  ): Promise<string> {
     return new Promise(async (resolve, reject) => {
       const redis = await RedisInstance.initRedis(method, db);
       redis.get(`${key}`, (err, val) => {
@@ -63,5 +67,10 @@ export class RedisInstance {
         resolve(val);
       });
     });
+  }
+
+  static async delRedis(method: string, db = 0, key: string) {
+    const redis = await RedisInstance.initRedis(method, db);
+    redis.del(`${key}`);
   }
 }
