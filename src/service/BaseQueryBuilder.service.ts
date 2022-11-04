@@ -16,13 +16,13 @@ import { R, Res } from 'src/response/R';
  */
 @Injectable()
 export class BaseQueryBuilderService<E> {
-  dataSource: DataSource;
-  dataSourceStr: string;
-  entity: EntityTarget<E>;
+  dataSource?: DataSource;
+  dataSourceStr?: string;
+  entity?: EntityTarget<E>;
   constructor(
-    dataSource: DataSource,
-    dataSourceStr: string,
-    entity: EntityTarget<E>,
+    dataSource?: DataSource,
+    dataSourceStr?: string,
+    entity?: EntityTarget<E>,
   ) {
     this.dataSource = dataSource;
     this.dataSourceStr = dataSourceStr;

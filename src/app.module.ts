@@ -15,6 +15,7 @@ import { RoleModule } from './module/role.module';
 import { MenuModel } from './module/menu.model';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BasesEntity } from './pojo/entity/bases.entity';
+import { FileModule } from './module/file.module';
 
 @Module({
   imports: [
@@ -28,6 +29,8 @@ import { BasesEntity } from './pojo/entity/bases.entity';
     // 权限
     // 菜单
     MenuModel,
+    // 文件
+    FileModule,
     // 中间件
     CommonModule,
     // 异常监控

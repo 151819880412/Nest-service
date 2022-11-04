@@ -300,6 +300,11 @@ export class UserService extends BaseQueryBuilderService<UserEntity> {
     }
   }
 
+  async uploadFile(file) {
+    console.log(file);
+    return R.ok('111');
+  }
+
   async relation(roleId: string) {
     // 使用中间表插入成功
     // const user = await this.dataSource

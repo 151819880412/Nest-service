@@ -1,4 +1,12 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/common/decorators/public.decorator';
 import { UserDto, UserPageDto } from 'src/pojo/dto/user.dto';
@@ -101,5 +109,18 @@ export class UserController {
   @Post('/editor')
   editor(@Body() data: UserDto): Promise<Res> {
     return this.userService.editor(data);
+  }
+
+  /**
+   * 上传文件
+   * @date 2022-10-14
+   * @param {any} FileInterceptor('file'
+   * @returns {any}
+   */
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadFile(@UploadedFile() file): Promise<Res> {
+    console.log(file);
+    return this.userService.uploadFile(file);
   }
 }
