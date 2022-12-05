@@ -16,6 +16,7 @@ import { MenuModel } from './module/menu.model';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BasesEntity } from './pojo/entity/bases.entity';
 import { FileModule } from './module/file.module';
+import { ErrorLogModule } from './module/error-log.module';
 
 @Module({
   imports: [
@@ -31,6 +32,8 @@ import { FileModule } from './module/file.module';
     MenuModel,
     // 文件
     FileModule,
+    // 错误日志
+    ErrorLogModule,
     // 中间件
     CommonModule,
     // 异常监控

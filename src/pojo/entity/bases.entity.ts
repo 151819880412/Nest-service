@@ -15,6 +15,10 @@ export abstract class BasesEntity extends BaseEntity {
   @ApiProperty()
   id: number;
 
+  // 0 未删除 1 删除
+  @Column('int', { default: 0, name: 'del_flag' })
+  delFlag: number;
+
   // @Column({
   //   nullable: true,
   //   name: 'created_time',

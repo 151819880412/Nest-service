@@ -39,12 +39,13 @@ export class BaseQueryBuilderService<E> {
    * @param {any} entity:EntityTarget<E>
    * @returns {any}
    */
-  async findPage<T, E>(
+  async findPage<T>(
     currentPage: number,
     pageSize: number,
-    data: T,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    data: T | {},
     selectCondition: Array<string> = null,
-  ): Promise<Res> {
+  ): Promise<Res<T>> {
     const result: [ObjectLiteral[], number] = await this.dataSource
       .getRepository(this.entity)
       .createQueryBuilder(this.dataSourceStr)
