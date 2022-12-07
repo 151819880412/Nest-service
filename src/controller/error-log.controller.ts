@@ -36,4 +36,15 @@ export class ErrorLogController {
   ): Promise<Res<ErrorLogEntity>> {
     return this.errorLogService.page(currentPage, pageSize, data);
   }
+
+  /**
+   * 根据id查询
+   * @date 2022-12-05
+   * @param {any} '/queryById'
+   * @returns {any}
+   */
+  @Post('/queryById')
+  queryRoleById(@Body() data: { errorLogId: string }): Promise<ErrorLogEntity> {
+    return this.errorLogService.queryById(data.errorLogId);
+  }
 }

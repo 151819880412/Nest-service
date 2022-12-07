@@ -52,4 +52,14 @@ export class ErrorLogService extends BaseQueryBuilderService<ErrorLogEntity> {
     );
     return data;
   }
+
+  /**
+   * 根据id查询
+   * @date 2022-12-05
+   * @param {any} id:string
+   * @returns {any}
+   */
+  async queryById(id: string): Promise<ErrorLogEntity> {
+    return await this.findOne({ errorLogId: id });
+  }
 }
