@@ -10,10 +10,10 @@ export default class RoleMenuEntity extends BaseEntity {
   @Column({ name: 'role_id' })
   @PrimaryGeneratedColumn('uuid')
   @ApiProperty()
-  roleId: number;
+  roleId: string;
 
   @Column({ name: 'menu_id' })
   @PrimaryGeneratedColumn('uuid')
   @ApiProperty()
-  menuId: number;
+  menuId: string;
 }

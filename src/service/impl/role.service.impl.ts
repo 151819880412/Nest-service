@@ -183,8 +183,9 @@ export class RoleServiceImpl extends BaseQueryBuilderService<RoleEntity> {
     // 开始事务：
     await queryRunner.startTransaction();
     try {
-      const updateUser = await this.update(role, { roleId: role.roleId });
-      console.log(updateUser);
+      await this.update(_.pick(roles, _.keys(role)), {
+        roleId: role.roleId,
+      });
       await this.relationDelete(RoleMenuEntity, { roleId: role.roleId });
       const dto = plainToInstance(
         RoleMenuEntity,

@@ -272,7 +272,9 @@ export class UserService extends BaseQueryBuilderService<UserEntity> {
     // 开始事务：
     await queryRunner.startTransaction();
     try {
-      const updateUser = await this.update(user, { userId: users.userId });
+      const updateUser = await this.update(_.pick(users, _.keys(user)), {
+        userId: users.userId,
+      });
       console.log(updateUser);
       await this.relationDelete(UserRoleEntity, { userId: users.userId });
       const dto = plainToInstance(
