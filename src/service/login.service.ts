@@ -1,30 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/pojo/entity/user.entity';
-import {
-  DataSource,
-  EntityManager,
-  getConnection,
-  getManager,
-  Repository,
-} from 'typeorm';
-import { BaseService } from './BaseService';
+import { DataSource, Repository } from 'typeorm';
 import { R, Res } from 'src/response/R';
 import { LoginDto } from '../pojo/dto/login.dto';
 import { AuthServiceImpl } from './impl/auth.service.impl';
 import { UserChangePwdDto } from 'src/pojo/dto/userChangePwd.dto';
-import {
-  classToPlain,
-  instanceToPlain,
-  plainToClass,
-  plainToInstance,
-} from 'class-transformer';
+import { plainToClass, plainToInstance } from 'class-transformer';
 import MenuEntity from 'src/pojo/entity/menu.entity';
 import RoleMenuEntity from 'src/pojo/entity/role-menu.entity';
 import { RoleEntity } from 'src/pojo/entity/role.entity';
 import UserRoleEntity from 'src/pojo/entity/user-role.entity';
 import { arrToTree } from 'src/utils';
 import { BaseQueryBuilderService } from './BaseQueryBuilder.service';
+import * as _ from 'lodash';
 
 @Injectable()
 export class LoginService extends BaseQueryBuilderService<UserEntity> {
@@ -53,21 +42,30 @@ export class LoginService extends BaseQueryBuilderService<UserEntity> {
   /**
    * 登录/注册
    * @date 2022-07-27
-   * @param {any} user:LoginDto
+   * @param {any} user:UserEntity
    * @returns {any}
    */
   async registerLogin(user: UserEntity): Promise<any> {
     // const users = await this.dataSource.query(
     //   `SELECT * FROM "user" WHERE username = '${user.username}'`,
     // );
-    const userOne: UserEntity = await this.findOne({ username: user.username });
+    // const userOne: UserEntity = await this.findOne({ username: user.username });
+
+    // 查询 user 表中 username 或者 phone 为 a 并且 password 为 b 的情况
+    const userOne: UserEntity = await this.findOne([
+      { username: user.username, password: user.password },
+      { phone: user.username, password: user.password },
+    ]);
+
+    console.log(userOne, 222);
     if (!userOne) {
-      // 注册+登录
-      const entity = plainToInstance(UserEntity, user); // 解决创建用户时 @BeforeInsert 不执行
-      // const entity = Object.assign(new UserEntity(), user);   // 解决创建用户时 @BeforeInsert 不执行
-      const regUser = (await this.saveOne(entity)) as unknown as UserEntity;
-      console.log(regUser);
-      return await this.authService.getToken(regUser);
+      // // 注册+登录
+      // const entity = plainToInstance(UserEntity, user); // 解决创建用户时 @BeforeInsert 不执行
+      // // const entity = Object.assign(new UserEntity(), user);   // 解决创建用户时 @BeforeInsert 不执行
+      // const regUser = (await this.saveOne(entity)) as unknown as UserEntity;
+      // console.log(regUser);
+      // return await this.authService.getToken(regUser);
+      return R.err('用户名或密码错误');
     } else {
       const data: any =
         (await this.dataSource
@@ -153,20 +151,20 @@ export class LoginService extends BaseQueryBuilderService<UserEntity> {
       const roles = data.roles;
       // 登录
       const token = await this.authService.getToken(userOne);
-      return {
+      return R.ok('登录成功', {
         ...userOne,
         ...token,
         roles,
         auth,
         btn,
-      };
+      });
     }
   }
 
   /**
    * 用户修改密码
    * @date 2022-07-27
-   * @param {any} user:LoginDto
+   * @param {any} user:UserChangePwdDto
    * @returns {any}
    */
   async changePwd(user: UserChangePwdDto): Promise<Res> {
@@ -229,9 +227,39 @@ export class LoginService extends BaseQueryBuilderService<UserEntity> {
     }
   }
 
+  /**
+   * 退出登录
+   * @date 2023-01-30
+   * @param {any} userId:string
+   * @returns {any}
+   */
   async logOut(userId: string): Promise<Res<number>> {
     const user = await this.findOne({ userId: userId });
     const res = await this.authService.clearToken(user);
     return R.ok('退出成功', res);
+  }
+
+  async register(user: LoginDto) {
+    const username = await this.findOne({
+      username: user.username,
+    });
+    if (username) {
+      return R.err('该用户名已存在');
+    }
+    const phone = await this.findOne({
+      phone: user.phone,
+    });
+    if (phone) {
+      return R.err('该手机号已存在');
+    }
+
+    // 注册
+    const entity = plainToInstance(UserEntity, user); // 解决创建用户时 @BeforeInsert 不执行
+    // const entity = Object.assign(new UserEntity(), user); // 解决创建用户时 @BeforeInsert 不执行
+    const regUser = (await this.saveOne(entity)) as unknown as UserEntity;
+    console.log(regUser);
+    //  return await this.authService.getToken(regUser);
+
+    return R.ok('注册成功');
   }
 }

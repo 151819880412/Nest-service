@@ -1,8 +1,7 @@
 import { Body, Controller, Post, Get, Query } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/common/decorators/public.decorator';
-import { UserDto } from 'src/pojo/dto/user.dto';
+import { LoginDto } from 'src/pojo/dto/login.dto';
 import { UserChangePwdDto } from 'src/pojo/dto/userChangePwd.dto';
 import { UserEntity } from 'src/pojo/entity/user.entity';
 import { Res } from 'src/response/R';
@@ -17,7 +16,7 @@ export class LoginController {
 
   @Public()
   @Post('login')
-  login(@Body() user: UserDto) {
+  login(@Body() user: LoginDto) {
     return this.userService.login(user);
   }
 
@@ -52,5 +51,11 @@ export class LoginController {
   test() {
     // return this.userService.login(user);
     return {};
+  }
+
+  @Public()
+  @Post('register')
+  register(@Body() user: LoginDto) {
+    return this.userService.register(user);
   }
 }

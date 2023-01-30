@@ -1,24 +1,16 @@
-import { Exclude, Expose, Transform, Type } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { IsNotEmpty, IsString } from 'class-validator';
 import { Formt, FormtToString } from 'src/utils/DateFormt';
 import {
-  AfterUpdate,
   BaseEntity,
   BeforeInsert,
   BeforeUpdate,
   Column,
-  DatabaseType,
   Entity,
   Index,
-  JoinTable,
-  ManyToMany,
-  OneToMany,
   PrimaryGeneratedColumn,
-  TreeChildren,
-  TreeParent,
   Unique,
 } from 'typeorm';
-import { RoleEntity } from './role.entity';
 
 /**
  * PrimaryGeneratedColumn 主键
@@ -44,6 +36,16 @@ export class UserEntity extends BaseEntity {
   @Exclude({ toPlainOnly: true, toClassOnly: false })
   @Expose()
   password: string;
+
+  @Column('varchar', { length: 20 })
+  @Exclude({ toPlainOnly: true, toClassOnly: false })
+  @Expose()
+  phone: string;
+
+  @Column('varchar', { length: 20 })
+  @Exclude({ toPlainOnly: true, toClassOnly: false })
+  @Expose()
+  type: 'user' | 'admin' | 'customer';
 
   @PrimaryGeneratedColumn('uuid')
   @Index({ unique: true })

@@ -8,7 +8,6 @@ import { R, Res } from 'src/response/R';
 import RoleMenuEntity from 'src/pojo/entity/role-menu.entity';
 import * as _ from 'lodash';
 import MenuEntity from 'src/pojo/entity/menu.entity';
-import { arrToTree, treeToArr } from 'src/utils';
 
 @Injectable()
 export class RoleServiceImpl extends BaseQueryBuilderService<RoleEntity> {
@@ -16,7 +15,6 @@ export class RoleServiceImpl extends BaseQueryBuilderService<RoleEntity> {
     super(dataSource, 'role', RoleEntity);
   }
   async addRole(role: RoleEntity): Promise<any> {
-    console.log(role);
     const entity = plainToInstance(RoleEntity, role); // 解决创建用户时 @BeforeInsert 不执行
 
     const data = await this.dataSource
@@ -114,8 +112,6 @@ export class RoleServiceImpl extends BaseQueryBuilderService<RoleEntity> {
     //   .getTreeRepository(MenuEntity)
     //   .findTrees();
 
-    // console.log(trees);
-
     const role = await this.dataSource
       .getRepository(this.entity)
       .createQueryBuilder(this.dataSourceStr)
@@ -172,7 +168,6 @@ export class RoleServiceImpl extends BaseQueryBuilderService<RoleEntity> {
    * @returns {any}
    */
   async editor(roles: RoleEditorDto): Promise<Res> {
-    console.log(roles);
     const role = await this.findOne({ roleId: roles.roleId });
     if (!role) return R.err('角色不存在');
 
@@ -196,11 +191,7 @@ export class RoleServiceImpl extends BaseQueryBuilderService<RoleEntity> {
           };
         }),
       );
-      const obj = await this.relationSaveOne<RoleMenuEntity>(
-        RoleMenuEntity,
-        dto,
-      );
-      console.log(obj);
+      await this.relationSaveOne<RoleMenuEntity>(RoleMenuEntity, dto);
       return R.ok('成功');
     } catch (error) {
       // 有错误做出回滚更改

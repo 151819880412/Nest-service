@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { RedisInstance } from 'src/database/redis';
-import { LoginDto } from 'src/pojo/dto/login.dto';
-import { UserDto } from 'src/pojo/dto/user.dto';
 import { UserEntity } from 'src/pojo/entity/user.entity';
 import { AuthService } from '../auth.service';
 

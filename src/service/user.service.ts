@@ -2,22 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserDto, UserPageDto } from 'src/pojo/dto/user.dto';
 import { UserEntity } from 'src/pojo/entity/user.entity';
-import {
-  Connection,
-  DataSource,
-  getRepository,
-  ILike,
-  Repository,
-} from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { BaseQueryBuilderService } from './BaseQueryBuilder.service';
 import { R, Res } from 'src/response/R';
 import { RoleEntity } from 'src/pojo/entity/role.entity';
 import { plainToInstance } from 'class-transformer';
-import { fuzzyquery } from 'src/utils/Fuzzyquery';
 import UserRoleEntity from 'src/pojo/entity/user-role.entity';
 import * as _ from 'lodash';
-import RoleMenuEntity from 'src/pojo/entity/role-menu.entity';
-import MenuEntity from 'src/pojo/entity/menu.entity';
 
 @Injectable()
 // export class UserService {
@@ -246,7 +237,6 @@ export class UserService extends BaseQueryBuilderService<UserEntity> {
     interface treeData extends RoleEntity {
       isCheck?: boolean;
     }
-    console.log(list);
     _.intersectionWith(AllRole, list.list, _.isEqual).forEach(
       (item: treeData) => (item.isCheck = true),
     );
@@ -261,7 +251,6 @@ export class UserService extends BaseQueryBuilderService<UserEntity> {
    * @returns {any}
    */
   async editor(users: UserDto): Promise<Res> {
-    console.log(users);
     const user = await this.findOne({ userId: users.userId });
     if (!user) return R.err('用户不存在');
 
@@ -275,7 +264,6 @@ export class UserService extends BaseQueryBuilderService<UserEntity> {
       const updateUser = await this.update(_.pick(users, _.keys(user)), {
         userId: users.userId,
       });
-      console.log(updateUser);
       await this.relationDelete(UserRoleEntity, { userId: users.userId });
       const dto = plainToInstance(
         UserRoleEntity,
@@ -286,11 +274,7 @@ export class UserService extends BaseQueryBuilderService<UserEntity> {
           };
         }),
       );
-      const obj = await this.relationSaveOne<UserRoleEntity>(
-        UserRoleEntity,
-        dto,
-      );
-      console.log(obj);
+      await this.relationSaveOne<UserRoleEntity>(UserRoleEntity, dto);
       return R.ok('成功');
     } catch (error) {
       // 有错误做出回滚更改
@@ -324,10 +308,7 @@ export class UserService extends BaseQueryBuilderService<UserEntity> {
     //   })
     //   .getOne();
     // user.roles = [role];
-    // console.log(user);
-    // console.log(role);
     // const aaa = await this.dataSource.manager.save(user);
-    // console.log(aaa);
     // return aaa;
 
     // 使用中间表查询成功
@@ -335,7 +316,6 @@ export class UserService extends BaseQueryBuilderService<UserEntity> {
     // const questions = await questionRepository.find({
     //   relations: ['roles'],
     // });
-    // console.log(questions);
 
     // const list = await this.dataSource
     //   .getRepository(UserEntity)
@@ -345,7 +325,6 @@ export class UserService extends BaseQueryBuilderService<UserEntity> {
     //     id: '76a2b794-0fdd-4fc7-b769-0e69e0fdc92c',
     //   })
     //   .getOne();
-    // console.log(list);
     // return list;
 
     // 不适用中间表
@@ -363,11 +342,8 @@ export class UserService extends BaseQueryBuilderService<UserEntity> {
         roleId: 'f24ee27c-65c7-4c25-9b14-5d576b69b191',
       })
       .getOne();
-    console.log(role);
-    console.log(user);
     // user.roles.push(role.roleId);
     const aaa = await this.dataSource.manager.save(user);
-    console.log(aaa);
     return aaa;
   }
 }
