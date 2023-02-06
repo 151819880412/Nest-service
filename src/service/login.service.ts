@@ -11,7 +11,7 @@ import MenuEntity from 'src/pojo/entity/menu.entity';
 import RoleMenuEntity from 'src/pojo/entity/role-menu.entity';
 import { RoleEntity } from 'src/pojo/entity/role.entity';
 import UserRoleEntity from 'src/pojo/entity/user-role.entity';
-import { arrToTree } from 'src/utils';
+import { arrToTree, sortTree } from 'src/utils';
 import { BaseQueryBuilderService } from './BaseQueryBuilder.service';
 import * as _ from 'lodash';
 
@@ -57,7 +57,6 @@ export class LoginService extends BaseQueryBuilderService<UserEntity> {
       { phone: user.username, password: user.password },
     ]);
 
-    console.log(userOne, 222);
     if (!userOne) {
       // // 注册+登录
       // const entity = plainToInstance(UserEntity, user); // 解决创建用户时 @BeforeInsert 不执行
@@ -94,8 +93,9 @@ export class LoginService extends BaseQueryBuilderService<UserEntity> {
             'menu',
             'menu.menuId = roleMenu.menuId',
           )
-          .orderBy(`menu.sort`, 'ASC')
-          .andWhere('menu.type < 2')
+          // .innerJoinAndSelect('menu.children', 'children')
+          // .orderBy(`menu.sort`, 'ASC')
+          // .andWhere('menu.type < 2')
           .getOne()) || {};
 
       const btn = await this.dataSource
@@ -106,48 +106,70 @@ export class LoginService extends BaseQueryBuilderService<UserEntity> {
         .getMany();
 
       // const aaa = await this.dataSource
-      // .getRepository(UserEntity)
-      // .createQueryBuilder('user')
-      // .leftJoinAndSelect(
-      //   UserRoleEntity,
-      //   'userRole',
-      //   'user.userId = userRole.userId',
-      // )
-      // .where({ userId: userOne.userId })
-      // .leftJoinAndMapMany(
-      //   'user.roles',
-      //   RoleEntity,
-      //   'role',
-      //   'role.roleId = userRole.roleId',
-      // )
-      // .leftJoinAndSelect(
-      //   RoleMenuEntity,
-      //   'roleMenu',
-      //   'role.roleId = roleMenu.roleId',
-      // )
-      // .leftJoinAndMapMany(
-      //   'user.menus',
-      //   MenuEntity,
-      //   'menu',
-      //   'menu.menuId = roleMenu.menuId',
-      // )
-      // .where({ userId: userOne.userId })
-      // .getMany();
+      //   .getRepository(UserEntity)
+      //   .createQueryBuilder('user')
+      //   .leftJoinAndSelect(
+      //     UserRoleEntity,
+      //     'userRole',
+      //     'user.userId = userRole.userId',
+      //   )
+      //   .where({ userId: userOne.userId })
+      //   .leftJoinAndMapMany(
+      //     'user.roles',
+      //     RoleEntity,
+      //     'role',
+      //     'role.roleId = userRole.roleId',
+      //   )
+      //   .leftJoinAndSelect(
+      //     RoleMenuEntity,
+      //     'roleMenu',
+      //     'role.roleId = roleMenu.roleId',
+      //   )
+      //   .leftJoinAndMapMany(
+      //     'user.menus',
+      //     MenuEntity,
+      //     'menu',
+      //     'menu.menuId = roleMenu.menuId',
+      //   )
+      //   // .innerJoinAndSelect('menu.children', 'children')
+      //   .where({ userId: userOne.userId })
+      //   // .orderBy(`menu.sort`, 'ASC')
+      //   // .andWhere('menu.type < 2')
+      //   .getOne();
 
-      let menuArr = [];
-      if (Array.isArray(data.menus)) {
-        for (let i = 0; i < data.menus.length; i++) {
-          if (data.menus[i].parentId) {
-            menuArr = menuArr.concat(
-              await this.dataSource
-                .getTreeRepository(MenuEntity)
-                .findAncestors(data.menus[i]),
-            );
+      function buildTree(array, parentId = null) {
+        const children = [];
+        for (const item of array) {
+          if (item.parentId === parentId) {
+            children.push({
+              ...item,
+              children: buildTree(array, item.id),
+            });
           }
         }
+        return children;
       }
 
-      const auth = arrToTree(menuArr, { root: null }) || [];
+      const roots = data.menus.filter((item) => !item.parentId);
+      const trees = roots.map((root) => ({
+        ...root,
+        children: buildTree(data.menus, root.id),
+      }));
+
+      // let menuArr = [];
+      // if (Array.isArray(data.menus)) {
+      //   for (let i = 0; i < data.menus.length; i++) {
+      //     // if (data.menus[i].parentId) {
+      //     menuArr = menuArr.concat(
+      //       await this.dataSource
+      //         .getTreeRepository(MenuEntity)
+      //         .findAncestors(data.menus[i]),
+      //     );
+      //     // }
+      //   }
+      // }
+      // const auth = arrToTree(menuArr, { root: null }) || [];
+      // console.log(data, auth, trees);
       const roles = data.roles;
       // 登录
       const token = await this.authService.getToken(userOne);
@@ -155,7 +177,7 @@ export class LoginService extends BaseQueryBuilderService<UserEntity> {
         ...userOne,
         ...token,
         roles,
-        auth,
+        auth: sortTree(trees, 'sort'),
         btn,
       });
     }

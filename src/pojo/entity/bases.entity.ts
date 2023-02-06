@@ -19,6 +19,10 @@ export abstract class BasesEntity extends BaseEntity {
   @Column('int', { default: 0, name: 'del_flag' })
   delFlag: number;
 
+  // 0 启用 1 禁用
+  @Column('int', { default: 0 })
+  state: number;
+
   // @Column({
   //   nullable: true,
   //   name: 'created_time',

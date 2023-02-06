@@ -58,11 +58,12 @@ export class RoleServiceImpl extends BaseQueryBuilderService<RoleEntity> {
       role.state = 0;
     }
     const updateUser = await this.update(role, { roleId: roleId });
-    if (updateUser.affected == 1) {
-      return R.ok('更新成功');
-    } else {
-      return R.err('更新失败');
-    }
+    // if (updateUser.affected == 1) {
+    //   return R.ok('更新成功');
+    // } else {
+    //   return R.err('更新失败');
+    // }
+    return updateUser;
   }
 
   /**
@@ -79,11 +80,12 @@ export class RoleServiceImpl extends BaseQueryBuilderService<RoleEntity> {
     }
     const updateUser = await this.update(role, { roleId: roleId });
 
-    if (updateUser.affected == 1) {
-      return R.ok('更新成功');
-    } else {
-      return R.err('更新失败');
-    }
+    // if (updateUser.affected == 1) {
+    //   return R.ok('更新成功');
+    // } else {
+    //   return R.err('更新失败');
+    // }
+    return updateUser;
   }
 
   /**

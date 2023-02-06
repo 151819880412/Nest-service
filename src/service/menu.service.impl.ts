@@ -3,6 +3,7 @@ import { plainToClass } from 'class-transformer';
 import { MenuItemsDto } from 'src/pojo/dto/menu.dto';
 import MenuEntity from 'src/pojo/entity/menu.entity';
 import { R, Res } from 'src/response/R';
+import { sortTree } from 'src/utils';
 import { DataSource } from 'typeorm';
 import { BaseQueryBuilderService } from './BaseQueryBuilder.service';
 
@@ -48,7 +49,7 @@ export class MenuServiceImpl extends BaseQueryBuilderService<MenuEntity> {
     // const parent = await getTreeRepository(MenuEntity).findAncestorsTree(a11)
 
     return {
-      results: trees,
+      results: sortTree(trees, 'sort'),
       total: -1,
     };
   }

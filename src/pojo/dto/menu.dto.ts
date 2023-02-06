@@ -24,7 +24,7 @@ export class MenuItemsDto {
 
   @ApiProperty({ description: '是否显示', type: Number })
   @IsNotEmpty({ message: 'delFlag不能为空' })
-  @IsNumber({}, { message: '1参数path要求是数字' })
+  @IsNumber({}, { message: '参数delFlag要求是数字' })
   readonly delFlag: number;
 
   readonly menuId: string;

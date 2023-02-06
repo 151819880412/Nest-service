@@ -1,3 +1,5 @@
+import MenuEntity from 'src/pojo/entity/menu.entity';
+
 export interface ArrrToTreeOptions {
   root?: string | number;
   pidKey?: string;
@@ -43,4 +45,24 @@ export function treeToArr(array: Array<object>, key: string) {
   }
   flatArr(array);
   return list;
+}
+
+/**
+ * 树结构排序
+ * @date 2023-02-02
+ * @param {any} tree:MenuEntity[]
+ * @returns {any}
+ */
+export function sortTree(tree: MenuEntity[], sort: string): MenuEntity[] {
+  tree.sort((a, b) => {
+    return a[sort] > b[sort] ? 1 : -1;
+  });
+
+  tree.forEach((node) => {
+    if (node.children) {
+      node.children = sortTree(node.children, sort);
+    }
+  });
+
+  return tree;
 }

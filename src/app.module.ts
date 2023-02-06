@@ -17,6 +17,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BasesEntity } from './pojo/entity/bases.entity';
 import { FileModule } from './module/file.module';
 import { ErrorLogModule } from './module/error-log.module';
+import { DictModel } from './module/dict.module';
 
 @Module({
   imports: [
@@ -34,6 +35,8 @@ import { ErrorLogModule } from './module/error-log.module';
     FileModule,
     // 错误日志
     ErrorLogModule,
+    // 系统字典
+    DictModel,
     // 中间件
     CommonModule,
     // 异常监控

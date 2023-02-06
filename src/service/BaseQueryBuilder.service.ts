@@ -211,7 +211,7 @@ export class BaseQueryBuilderService<E> {
    * @param {any} where:|string|((qb:this
    * @returns {any}
    */
-  async update(
+  async update<T>(
     values: any,
     where:
       | string
@@ -220,15 +220,41 @@ export class BaseQueryBuilderService<E> {
       | ObjectLiteral
       | ObjectLiteral[],
     parameters?: ObjectLiteral,
-  ): Promise<UpdateResult> {
-    const data = this.dataSource
+  ): Promise<Res<T>> {
+    const data = await this.dataSource
       .createQueryBuilder()
       .update(this.entity)
       .set(values)
       .where(where, parameters)
-      .execute();
-    return data;
+      .returning('*')
+      .execute()
+      .then((result) => result.raw[0]);
+    if (data) {
+      return R.ok('修改成功', data);
+    } else {
+      return R.err('修改失败');
+    }
   }
+
+  // 原始更新方法
+  // async update(
+  //   values: any,
+  //   where:
+  //     | string
+  //     | ((qb: this) => string)
+  //     | Brackets
+  //     | ObjectLiteral
+  //     | ObjectLiteral[],
+  //   parameters?: ObjectLiteral,
+  // ): Promise<UpdateResult> {
+  //   const data = this.dataSource
+  //     .createQueryBuilder()
+  //     .update(this.entity)
+  //     .set(values)
+  //     .where(where, parameters)
+  //     .execute();
+  //   return data;
+  // }
 
   /**
    * 删除

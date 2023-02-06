@@ -183,11 +183,12 @@ export class UserService extends BaseQueryBuilderService<UserEntity> {
     //   .execute();
     const updateUser = await this.update(user, { userId: userId });
 
-    if (updateUser.affected == 1) {
-      return R.ok('更新成功');
-    } else {
-      return R.err('更新失败');
-    }
+    // if (updateUser.affected == 1) {
+    //   return R.ok('更新成功');
+    // } else {
+    //   return R.err('更新失败');
+    // }
+    return updateUser;
   }
 
   /**
