@@ -25,6 +25,10 @@ export default class MenuEntity extends BasesEntity {
   @ApiProperty()
   menuName: string;
 
+  @Column()
+  @ApiProperty({ name: 'component_name', nullable: true })
+  componentName: string;
+
   @Column({ nullable: true })
   @ApiProperty()
   path: string;

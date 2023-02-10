@@ -18,6 +18,7 @@ import { BasesEntity } from './pojo/entity/bases.entity';
 import { FileModule } from './module/file.module';
 import { ErrorLogModule } from './module/error-log.module';
 import { DictModel } from './module/dict.module';
+import { TemplateMaintainModule } from './module/templateMaintain.module';
 
 @Module({
   imports: [
@@ -37,6 +38,8 @@ import { DictModel } from './module/dict.module';
     ErrorLogModule,
     // 系统字典
     DictModel,
+    // 模板维护
+    TemplateMaintainModule,
     // 中间件
     CommonModule,
     // 异常监控
