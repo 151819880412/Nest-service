@@ -8,7 +8,7 @@ import { plainToInstance } from 'class-transformer';
 @Injectable()
 export class TemplateMaintainServiceImpl extends BaseQueryBuilderService<TemplateMaintainEntity> {
   constructor(dataSource: DataSource) {
-    super(dataSource, 'dict', TemplateMaintainEntity);
+    super(dataSource, 'templateMaintain', TemplateMaintainEntity);
   }
 
   // 分页查询
@@ -29,16 +29,31 @@ export class TemplateMaintainServiceImpl extends BaseQueryBuilderService<Templat
   }
 
   // 根据id查询
-  async queryTemplateById(dictId: string) {
-    const role = await this.findOne({ dictId });
+  async queryTemplateById(templateMaintainId: string) {
+    const role = await this.findOne({ templateMaintainId });
     return R.ok('查询成功', role);
   }
 
   // 编辑
-  async editorTemplate(dict: TemplateMaintainEntity): Promise<Res> {
-    const data = await this.update<TemplateMaintainEntity>(dict, {
-      dictId: dict.templateMaintainId,
+  async editorTemplate(templateMaintain: TemplateMaintainEntity): Promise<Res> {
+    const data = await this.update<TemplateMaintainEntity>(templateMaintain, {
+      templateMaintainId: templateMaintain.templateMaintainId,
     });
     return data;
+  }
+
+  // 删除
+  async delTemplate(templateMaintain: TemplateMaintainEntity): Promise<Res> {
+    const res = await this.findOne({
+      templateMaintainId: templateMaintain.templateMaintainId,
+    });
+    if (!res) return R.err('模板不存在');
+    if (res.delFlag == 0) {
+      res.delFlag = 1;
+    }
+    const updateData = await this.update(res, {
+      templateMaintainId: templateMaintain.templateMaintainId,
+    });
+    return updateData;
   }
 }

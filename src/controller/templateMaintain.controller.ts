@@ -7,7 +7,9 @@ import { TemplateMaintainServiceImpl } from 'src/service/templateMaintain.servic
 @ApiTags('模板维护')
 @Controller('templateMaintain')
 export class TemplateMaintainController {
-  constructor(private readonly dictService: TemplateMaintainServiceImpl) {}
+  constructor(
+    private readonly templateMaintainService: TemplateMaintainServiceImpl,
+  ) {}
 
   @Post('page/:currentPage/:pageSize')
   queryTemListByPage(
@@ -15,21 +17,30 @@ export class TemplateMaintainController {
     @Param('currentPage') currentPage: number,
     @Param('pageSize') pageSize: number,
   ) {
-    return this.dictService.queryTemListByPage(currentPage, pageSize, data);
+    return this.templateMaintainService.queryTemListByPage(
+      currentPage,
+      pageSize,
+      data,
+    );
   }
 
   @Post('addTemplate')
   addTemplate(@Body() data: TtemplateMaintainEntity) {
-    return this.dictService.addTemplate(data);
+    return this.templateMaintainService.addTemplate(data);
   }
 
   @Get('/queryTemplateById')
-  queryTemplateById(@Query('dictId') id: string) {
-    return this.dictService.queryTemplateById(id);
+  queryTemplateById(@Query('templateMaintainId') id: string) {
+    return this.templateMaintainService.queryTemplateById(id);
   }
 
   @Post('/editorTemplate')
   editorTemplate(@Body() data: TtemplateMaintainEntity) {
-    return this.dictService.editorTemplate(data);
+    return this.templateMaintainService.editorTemplate(data);
+  }
+
+  @Post('/delTemplate')
+  delTemplate(@Body() data: TtemplateMaintainEntity) {
+    return this.templateMaintainService.delTemplate(data);
   }
 }
