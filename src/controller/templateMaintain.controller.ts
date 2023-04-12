@@ -1,5 +1,15 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UsePipes,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ValidationPipes } from 'src/pipes/validationPipes.pipe';
+import { TemplateMaintainDto } from 'src/pojo/dto/templateMaintain.dto';
 import TtemplateMaintainEntity from 'src/pojo/entity/templateMaintain.entity';
 import { TemplateMaintainServiceImpl } from 'src/service/templateMaintain.service.impl';
 
@@ -35,7 +45,8 @@ export class TemplateMaintainController {
   }
 
   @Post('/editorTemplate')
-  editorTemplate(@Body() data: TtemplateMaintainEntity) {
+  @UsePipes(new ValidationPipes())
+  editorTemplate(@Body() data: TemplateMaintainDto) {
     return this.templateMaintainService.editorTemplate(data);
   }
 

@@ -9,6 +9,12 @@ import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
 // import { Logger } from '../utils/log4js';
 
+/**
+ * 管道 : 验证前端传递的参数
+ * 使用 : @UsePipes(new ValidationPipes())
+ * @date 2023-04-10
+ * @returns {any}
+ */
 @Injectable()
 export class ValidationPipes implements PipeTransform {
   async transform(value: any, { metatype }: ArgumentMetadata) {

@@ -4,6 +4,7 @@ import { DataSource } from 'typeorm';
 import { BaseQueryBuilderService } from './BaseQueryBuilder.service';
 import { R, Res } from 'src/response/R';
 import { plainToInstance } from 'class-transformer';
+import { TemplateMaintainDto } from 'src/pojo/dto/templateMaintain.dto';
 
 @Injectable()
 export class TemplateMaintainServiceImpl extends BaseQueryBuilderService<TemplateMaintainEntity> {
@@ -35,7 +36,7 @@ export class TemplateMaintainServiceImpl extends BaseQueryBuilderService<Templat
   }
 
   // 编辑
-  async editorTemplate(templateMaintain: TemplateMaintainEntity): Promise<Res> {
+  async editorTemplate(templateMaintain: TemplateMaintainDto): Promise<Res> {
     const data = await this.update<TemplateMaintainEntity>(templateMaintain, {
       templateMaintainId: templateMaintain.templateMaintainId,
     });

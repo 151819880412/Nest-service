@@ -19,6 +19,7 @@ import { FileModule } from './module/file.module';
 import { ErrorLogModule } from './module/error-log.module';
 import { DictModel } from './module/dict.module';
 import { TemplateMaintainModule } from './module/templateMaintain.module';
+import { DatabaseModule } from './module/database.module';
 
 @Module({
   imports: [
@@ -40,6 +41,8 @@ import { TemplateMaintainModule } from './module/templateMaintain.module';
     DictModel,
     // 模板维护
     TemplateMaintainModule,
+    // 数据库设置
+    DatabaseModule,
     // 中间件
     CommonModule,
     // 异常监控
