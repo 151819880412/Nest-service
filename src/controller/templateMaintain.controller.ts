@@ -45,7 +45,7 @@ export class TemplateMaintainController {
   }
 
   @Post('/editorTemplate')
-  @UsePipes(new ValidationPipes())
+  // @UsePipes(new ValidationPipes())
   editorTemplate(@Body() data: TemplateMaintainDto) {
     return this.templateMaintainService.editorTemplate(data);
   }

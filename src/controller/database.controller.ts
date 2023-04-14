@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { DataBase } from 'src/pojo/database.';
 import { R, Res } from 'src/response/R';
 import { DatabaseServiceImpl } from 'src/service/impl/Database.service.impl';
-import { createConnection } from 'typeorm';
+import { TableOptions, createConnection } from 'typeorm';
 
 @ApiBearerAuth()
 @ApiTags('数据库设置')
@@ -12,7 +12,7 @@ export class DatabaseController {
   constructor(private readonly databaseService: DatabaseServiceImpl) {}
 
   @Post('create')
-  async rolePage() {
+  async rolePage(@Body() data: TableOptions) {
     try {
       // 创建数据库连接
       const connection = await createConnection();
@@ -22,7 +22,7 @@ export class DatabaseController {
       const queryRunner = connection.createQueryRunner();
       await queryRunner.connect();
       // 手动调用 up() 方法
-      await migration.up(queryRunner);
+      await migration.createTable(data, queryRunner);
       // 释放 QueryRunner
       await queryRunner.release();
       // 关闭数据库连接
@@ -35,12 +35,12 @@ export class DatabaseController {
 
   @Post('addDataBase')
   async addData(@Body() data: any): Promise<Res> {
-    return await this.databaseService.add(data); // 调用 addData() 方法
+    return await this.databaseService.add('aaa', data); // 调用 addData() 方法
   }
 
   @Get('getData')
   async getData() {
-    return this.databaseService.findById('1');
+    return this.databaseService.findById('aaa', '1');
   }
 
   @Put('updateData/:id')
@@ -48,6 +48,6 @@ export class DatabaseController {
     @Param('id') id: string,
     @Body() data: Partial<DataBase>,
   ): Promise<Res> {
-    return this.databaseService.update(data, { id: 1 });
+    return this.databaseService.update('aaa', data, { id: 1 });
   }
 }
