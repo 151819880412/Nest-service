@@ -1,6 +1,7 @@
 import { Controller, Post, Get, Put, Param, Body } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { DataBase } from 'src/pojo/database.';
+import { DatabaseDto } from 'src/pojo/dto/database.dto';
 import { R, Res } from 'src/response/R';
 import { DatabaseServiceImpl } from 'src/service/impl/Database.service.impl';
 import { TableOptions, createConnection } from 'typeorm';
@@ -12,7 +13,7 @@ export class DatabaseController {
   constructor(private readonly databaseService: DatabaseServiceImpl) {}
 
   @Post('create')
-  async rolePage(@Body() data: TableOptions) {
+  async rolePage(@Body() data: DatabaseDto) {
     try {
       // 创建数据库连接
       const connection = await createConnection();

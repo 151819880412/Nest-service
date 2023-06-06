@@ -1,72 +1,82 @@
 import { Injectable } from '@nestjs/common';
 import { DataBase } from 'src/pojo/database.';
 import { R } from 'src/response/R';
-import { QueryRunner, Table, TableOptions, createConnection } from 'typeorm';
+import { QueryRunner, Table, createConnection } from 'typeorm';
 import { Res } from '../../response/R';
 import {
   DatabaseService,
   UpdateData,
   WhereCondition,
 } from '../Database.service';
+import { DatabaseDto } from 'src/pojo/dto/database.dto';
 
 @Injectable()
 export class DatabaseServiceImpl implements DatabaseService {
   async createTable(
-    data: TableOptions,
+    data: DatabaseDto,
     queryRunner: QueryRunner,
   ): Promise<void> {
+    if (data.isPrimary) {
+      if (
+        data.columns.filter((item) => item.name == data.isPrimary).length > 0
+      ) {
+        data.columns.filter(
+          (item) => item.name == data.isPrimary,
+        )[0].isPrimary = true;
+        data.columns.filter(
+          (item) => item.name == data.isPrimary,
+        )[0].generationStrategy = 'uuid';
+      }
+      if (Array.isArray(data.isUnique)) {
+        data.indices = [
+          {
+            isUnique: true,
+            columnNames: data.isUnique,
+          },
+        ];
+      }
+    }
     await queryRunner.createTable(
+      new Table(data),
       // new Table({
       //   name: 'aaa',
+
       //   columns: [
       //     { name: 'id', type: 'integer', isPrimary: true, isGenerated: true },
-      //     { name: 'name', type: 'varchar', length: '50', isNullable: false },
-      //     { name: 'age', type: 'integer', isNullable: true },
+      //     {
+      //       name: 'username',
+      //       type: 'varchar',
+      //       length: '20',
+      //       isNullable: false,
+      //     },
+      //     {
+      //       name: 'password',
+      //       type: 'varchar',
+      //       length: '20',
+      //       isNullable: false,
+      //     },
+      //     { name: 'phone', type: 'varchar', length: '20', isNullable: true },
+      //     { name: 'type', type: 'varchar', length: '20', isNullable: false },
+      //     // 主键 唯一且不能为空
+      //     {
+      //       name: 'userId',
+      //       type: 'uuid',
+      //       generationStrategy: 'uuid',
+      //       isPrimary: true,
+      //     },
+      //     { name: 'state', type: 'integer', default: 0 },
+      //     { name: 'del_flag', type: 'integer', default: 0 },
+      //     { name: 'created_time', type: 'timestamp', isNullable: true },
+      //     { name: 'updated_time', type: 'timestamp', isNullable: true },
+      //   ],
+      //   // 索引 提高查询速度
+      //   indices: [
+      //     {
+      //       isUnique: true,
+      //       columnNames: ['id', 'username'],
+      //     },
       //   ],
       // }),
-      new Table({
-        name: 'aaa',
-
-        columns: [
-          { name: 'id', type: 'integer', isPrimary: true, isGenerated: true },
-          {
-            name: 'username',
-            type: 'varchar',
-            length: '20',
-            isNullable: false,
-          },
-          {
-            name: 'password',
-            type: 'varchar',
-            length: '20',
-            isNullable: false,
-          },
-          { name: 'phone', type: 'varchar', length: '20', isNullable: true },
-          { name: 'type', type: 'varchar', length: '20', isNullable: false },
-          // {
-          //   name: 'userId',
-          //   type: 'uuid',
-          //   generationStrategy: 'uuid',
-          //   isPrimary: true,
-          // },
-          { name: 'state', type: 'integer', default: 0 },
-          { name: 'del_flag', type: 'integer', default: 0 },
-          { name: 'created_time', type: 'timestamp', isNullable: true },
-          { name: 'updated_time', type: 'timestamp', isNullable: true },
-        ],
-        indices: [
-          {
-            name: 'aaa1',
-            isUnique: true,
-            columnNames: ['id', 'username'],
-          },
-          // {
-          //   name: 'aaa2',
-          //   isUnique: true,
-          //   columnNames: ['userId'],
-          // },
-        ],
-      }),
     );
   }
 

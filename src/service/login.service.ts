@@ -27,7 +27,7 @@ export class LoginService extends BaseQueryBuilderService<UserEntity> {
   }
   async login(user: LoginDto) {
     const userOne: UserEntity = await this.findOne({
-      where: { username: user.username },
+      username: user.username,
     });
     if (!userOne) {
       return R.err('用户名不存在');

@@ -1,6 +1,7 @@
 import { DataBase } from 'src/pojo/database.';
+import { DatabaseDto } from 'src/pojo/dto/database.dto';
 import { Res } from 'src/response/R';
-import { QueryRunner, TableOptions } from 'typeorm';
+import { QueryRunner } from 'typeorm';
 
 export interface UpdateData {
   [key: string]: any;
@@ -11,7 +12,7 @@ export interface WhereCondition {
 }
 
 export interface DatabaseService {
-  createTable: (data: TableOptions, queryRunner: QueryRunner) => Promise<void>;
+  createTable: (data: DatabaseDto, queryRunner: QueryRunner) => Promise<void>;
   dropTable: (tableName: string, queryRunner: QueryRunner) => Promise<void>;
   add: (tableName: string, data: any) => Promise<Res>;
   findById: (tableName: string, id: string) => Promise<DataBase[]>;

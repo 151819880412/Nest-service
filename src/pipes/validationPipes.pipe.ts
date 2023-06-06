@@ -24,6 +24,7 @@ export class ValidationPipes implements PipeTransform {
     }
     // 将对象转换为 Class 来验证
     const object = plainToClass(metatype, value);
+    console.log(object, value);
     const errors = await validate(object);
     if (errors.length > 0) {
       const errorArr = [];

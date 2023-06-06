@@ -68,10 +68,10 @@ export class MenuServiceImpl extends BaseQueryBuilderService<MenuEntity> {
   }
 
   async editorMenuItems(menuItemsDto: MenuItemsDto): Promise<Res> {
-    const data = await this.update(menuItemsDto, {
+    await this.update(menuItemsDto, {
       menuId: menuItemsDto.menuId,
     });
-    return R.ok('编辑成功', data);
+    return R.ok('编辑成功');
   }
 
   async addMenuItems(menuItemsDto: MenuItemsDto): Promise<Res> {
